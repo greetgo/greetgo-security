@@ -9,21 +9,13 @@ echo "%%%"
 docker-compose down
 
 echo "%%%"
-echo "%%% Удаляем вольюмы"
+echo "%%% Удаляем вольюмы : sudo rm -rf ./volumes/"
 echo "%%%"
-
-mkdir -p volumes
 
 docker run --rm -i \
   -v "$PWD/volumes:/volumes" \
   busybox:1.31.0 \
   find /volumes/ -maxdepth 1 -mindepth 1 -exec rm -rf {} \;
 
-rm -rvf volumes/
+rm -rf ./volumes/
 
-echo "%%%"
-echo "%%% Запускаем докеровские образы : docker-compose up -d"
-echo "%%%"
-
-mkdir -p volumes
-docker-compose up -d

@@ -11,3 +11,14 @@ services:
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d
+
+  mongo:
+    image: mongo:4.2.0
+    mem_limit: 700M
+    restart: always
+    ports:
+      - "12013:27017"
+    volumes:
+      - ./volumes/mongo-db:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    command: [--bind_ip_all, --replSet, main]

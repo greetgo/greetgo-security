@@ -14,7 +14,7 @@ import static com.mongodb.client.model.Filters.eq;
 public class TestMongoUtil {
 
   public static MongoCollection<Document> connectGetCollection(String collectionName) {
-    MongoClient mongoClient = new MongoClient();
+    MongoClient mongoClient = new MongoClient("localhost", 12013);
     MongoDatabase database = mongoClient.getDatabase(System.getProperty("user.name") + "_greetgo_security");
     return database.getCollection(collectionName);
   }
