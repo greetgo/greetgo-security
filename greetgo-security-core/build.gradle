@@ -1,3 +1,8 @@
+plugins {
+  id "kz.greetgo.upload-to-maven"
+  id "kz.greetgo.upload-to-gg-repo"
+}
+
 def ggRepo = System.getenv('GG_REPO')
 
 dependencies {
@@ -22,4 +27,20 @@ dependencies {
     testCompile fileTree(dir: 'lib_oracle_driver', include: ['*.jar'])
   }
 
+}
+
+install.group = "upload"
+
+uploadToMavenCentral {
+  description = 'Security infrastructure used in greetgo!'
+  url = 'https://github.com/greetgo/greetgo-security'
+  scm {
+    url = 'https://github.com/greetgo/greetgo-security.git'
+  }
+  developer {
+    id = 'pompei'
+    //noinspection SpellCheckingInspection
+    name = 'Evgenij Kolpakov'
+    email = 'ekolpakov@greet-go.kz'
+  }
 }

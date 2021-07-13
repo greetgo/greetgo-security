@@ -26,9 +26,7 @@ class SessionServiceImpl implements SessionService {
   @SuppressWarnings("SpellCheckingInspection")
   private static final String ENG     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private static final String DEG     = "0123456789";
-  private static final char[] ALL     = (
-    ENG.toLowerCase() + ENG.toUpperCase() + DEG
-  ).toCharArray();
+  private static final char[] ALL     = (ENG.toLowerCase() + ENG.toUpperCase() + DEG).toCharArray();
   private static final int    ALL_LEN = ALL.length;
   private final        Random random  = new SecureRandom();
 
@@ -121,6 +119,9 @@ class SessionServiceImpl implements SessionService {
     {
       SessionCache sessionCache = sessionCacheMap.get(sessionId);
       if (sessionCache != null) {
+        if (sessionLeft(sessionId, sessionCache.sessionData, sessionCache.token)) {
+          return null;
+        }
         return cast(sessionCache.sessionData);
       }
     }
@@ -138,6 +139,10 @@ class SessionServiceImpl implements SessionService {
         return Optional.empty();
       }
 
+      if (sessionLeft(sessionId, sessionRow.sessionData, sessionRow.token)) {
+        return Optional.empty();
+      }
+
       sessionCacheMap.put(sessionId, sessionRow.toCacheRecord());
       return Optional.of(sessionRow);
 
@@ -147,7 +152,39 @@ class SessionServiceImpl implements SessionService {
 
     }
 
+  }
 
+  private final ConcurrentMap<String, Long> sessionLastValidatedMillis_map = new ConcurrentHashMap<>();
+
+  private boolean sessionLeft(String sessionId, Object sessionData, String token) {
+    return !sessionValidated(sessionId, sessionData, token);
+  }
+
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+  private boolean sessionValidated(String sessionId, Object sessionData, String token) {
+    SessionValidator<Object> sessionValidator = builder.sessionValidator;
+    if (sessionValidator == null) {
+      return true;
+    }
+
+    var lastValidatedMillis = sessionLastValidatedMillis_map.get(sessionId);
+    if (lastValidatedMillis != null && (System.currentTimeMillis() - lastValidatedMillis <= builder.validateSessionDelayMillis.getAsLong())) {
+      return true;
+    }
+
+    try {
+      sessionValidator.validate(sessionId, sessionData, token);
+      sessionLastValidatedMillis_map.put(sessionId, System.currentTimeMillis());
+      return true;
+    } catch (Exception e) {
+      builder.sessionLog.sessionValidateError(e);
+
+      builder.storage.remove(sessionId);
+      sessionCacheMap.remove(sessionId);
+      sessionLastValidatedMillis_map.remove(sessionId);
+
+      return false;
+    }
   }
 
   @Override
@@ -172,7 +209,7 @@ class SessionServiceImpl implements SessionService {
 
     String saltExpected = builder.saltGenerator.generateSalt(s.part);
 
-    return saltExpected.equals(s.salt);
+    return Objects.equals(saltExpected, s.salt);
 
   }
 
@@ -180,6 +217,11 @@ class SessionServiceImpl implements SessionService {
   public boolean verifyToken(String sessionId, String token) {
     SessionCache cache = sessionCacheMap.get(sessionId);
     if (cache != null) {
+
+      if (sessionLeft(sessionId, cache.sessionData, cache.token)) {
+        return false;
+      }
+
       return Objects.equals(cache.token, token);
     }
 
@@ -192,6 +234,11 @@ class SessionServiceImpl implements SessionService {
   public Optional<String> getToken(String sessionId) {
     SessionCache cache = sessionCacheMap.get(sessionId);
     if (cache != null) {
+
+      if (sessionLeft(sessionId, cache.sessionData, cache.token)) {
+        return Optional.empty();
+      }
+
       return Optional.ofNullable(cache.token);
     }
 
@@ -209,7 +256,7 @@ class SessionServiceImpl implements SessionService {
       return;
     }
 
-    if (!loadSession(sessionId).isPresent()) {
+    if (loadSession(sessionId).isEmpty()) {
       return;
     }
 
@@ -249,6 +296,7 @@ class SessionServiceImpl implements SessionService {
                                              .collect(Collectors.toSet());
 
     removingIds.forEach(sessionCacheMap::remove);
+    removingIds.forEach(sessionLastValidatedMillis_map::remove);
     removingIds.forEach(id -> removedSessionIds.put(id, id));
   }
 
@@ -276,6 +324,8 @@ class SessionServiceImpl implements SessionService {
     }
 
     removingIds.forEach(sessionCacheMap::remove);
+    removingIds.forEach(sessionLastValidatedMillis_map::remove);
     removingIds.forEach(id -> removedSessionIds.put(id, id));
   }
+
 }
