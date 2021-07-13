@@ -1,0 +1,23 @@
+dependencies {
+  compileOnly "kz.greetgo.db:greetgo.db:$greetgoDbVersion"
+  testCompile "kz.greetgo.db:greetgo.db:$greetgoDbVersion"
+
+  compileOnly "org.mongodb:mongo-java-driver:$mongoDriverVersion"
+  testCompile "org.mongodb:mongo-java-driver:$mongoDriverVersion"
+
+  testCompile "kz.greetgo.conf:greetgo.sys_params:1.0.2"
+  testCompile "kz.greetgo:greetgo.util:2.0.0"
+
+  //jdbc drivers
+  //noinspection SpellCheckingInspection
+  testCompile "org.postgresql:postgresql:9.4-1202-jdbc42"
+
+  if (ggRepo?.trim()) {
+    //noinspection SpellCheckingInspection
+    testCompile "greetgo.3rd-party:oracle-ojdbc6_g:11.2.0.3"
+    testCompile "greetgo.3rd-party:oracle-ucp:11.2.0.3"
+  } else {
+    testCompile fileTree(dir: 'lib_oracle_driver', include: ['*.jar'])
+  }
+
+}

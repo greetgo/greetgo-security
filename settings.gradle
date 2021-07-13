@@ -1,0 +1,3 @@
+rootProject.name = 'greetgo-security'
+
+include "greetgo-security-core"
