@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import java.io.Serializable;
 import java.util.Date;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class SerializerTest {
 
@@ -40,6 +40,7 @@ public class SerializerTest {
     //
 
     assertThat(o2).isNotNull();
+    //noinspection ConstantConditions
     assertThat(o2.dateField).isEqualTo(o1.dateField);
     assertThat(o2.intField).isEqualTo(o1.intField);
     assertThat(o2.strField).isEqualTo(o1.strField);

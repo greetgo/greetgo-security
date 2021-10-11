@@ -30,7 +30,7 @@ import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static kz.greetgo.security.util.TestMongoUtil.connectGetCollection;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @Listeners(SkipListener.class)
 public class SessionStorageTest {
@@ -111,6 +111,7 @@ public class SessionStorageTest {
     byte[] bytes = jdbc.execute(new SelectBytesField("user_data", tableName, identity.id));
     TestSessionData actualSessionData = Serializer.deserialize(bytes);
     assertThat(actualSessionData).isNotNull();
+    assert actualSessionData != null;
     assertThat(actualSessionData.userId).isEqualTo(sessionData.userId);
     assertThat(actualSessionData.role).isEqualTo(sessionData.role);
   }
@@ -179,6 +180,7 @@ public class SessionStorageTest {
     //
 
     assertThat(actual).isNotNull();
+    assert actual != null;
     assertThat(((TestSessionData) actual.sessionData).userId).isEqualTo(sessionData.userId);
     assertThat(((TestSessionData) actual.sessionData).role).isEqualTo(sessionData.role);
     assertThat(actual.token).isEqualTo(identity.token);

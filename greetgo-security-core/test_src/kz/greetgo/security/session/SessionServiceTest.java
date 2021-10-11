@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
 import static kz.greetgo.security.SecurityBuilders.newSessionServiceBuilder;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @Listeners(SkipListener.class)
 public class SessionServiceTest {

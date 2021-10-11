@@ -25,7 +25,7 @@ import java.util.List;
 
 import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
 import static kz.greetgo.security.util.TestMongoUtil.connectGetCollection;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @Listeners(SkipListener.class)
 public class CryptoTest {
@@ -427,7 +427,7 @@ public class CryptoTest {
 
     SecureRandom rnd = crypto.rnd();
 
-    long[] longs = rnd.longs().limit(arraySize * 100L).toArray();
+    long[] longs = rnd.longs().limit(arraySize * 100).toArray();
     Arrays.sort(longs);
 
     for (int i = 1; i < longs.length; i++) {
