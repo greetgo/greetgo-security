@@ -9,15 +9,17 @@ dependencies {
   compileOnly "kz.greetgo.db:greetgo.db:$greetgoDbVersion"
   testCompile "kz.greetgo.db:greetgo.db:$greetgoDbVersion"
 
-  compileOnly "org.mongodb:mongo-java-driver:$mongoDriverVersion"
-  testCompile "org.mongodb:mongo-java-driver:$mongoDriverVersion"
+  //compileOnly "org.mongodb:mongo-java-driver:$mongoDriverVersion"
+  //testCompile "org.mongodb:mongo-java-driver:$mongoDriverVersion"
+  compileOnly "org.mongodb:mongodb-driver-sync:$mongoDriverSyncVersion"
+  testCompile "org.mongodb:mongodb-driver-sync:$mongoDriverSyncVersion"
 
-  testCompile "kz.greetgo.conf:greetgo.sys_params:1.0.2"
+  testCompile "kz.greetgo.conf:greetgo.sys_params:2.0.0"
   testCompile "kz.greetgo:greetgo.util:2.0.0"
 
   //jdbc drivers
   //noinspection SpellCheckingInspection
-  testCompile "org.postgresql:postgresql:9.4-1202-jdbc42"
+  testCompile 'org.postgresql:postgresql:42.2.24.jre7'
 
   if (ggRepo?.trim()) {
     //noinspection SpellCheckingInspection

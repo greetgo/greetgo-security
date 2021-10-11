@@ -1,8 +1,9 @@
 package kz.greetgo.security.util;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import com.mongodb.MongoSocketOpenException;
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
@@ -14,7 +15,7 @@ import static com.mongodb.client.model.Filters.eq;
 public class TestMongoUtil {
 
   public static MongoCollection<Document> connectGetCollection(String collectionName) {
-    MongoClient mongoClient = new MongoClient("localhost", 12013);
+    MongoClient mongoClient = MongoClients.create("localhost:12013");
     MongoDatabase database = mongoClient.getDatabase(System.getProperty("user.name") + "_greetgo_security");
     return database.getCollection(collectionName);
   }

@@ -4,7 +4,7 @@ import kz.greetgo.util.RND;
 import org.testng.annotations.Test;
 
 import static kz.greetgo.security.SecurityBuilders.newPasswordEncoderBuilder;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PasswordEncoderTest {
   @Test

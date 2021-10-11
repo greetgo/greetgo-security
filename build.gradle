@@ -34,8 +34,10 @@ subprojects {
     ext.zooCuratorRecipesVersion = "5.1.0"
     ext.caffeineVersion = "2.8.5"
 
-    ext.greetgoDbVersion = '2.3.6'
-    ext.mongoDriverVersion = '3.8.1'
+    ext.greetgoDbVersion = '2.3.7'
+    ext.mongoDriverVersion = '3.12.10'
+    //ext.mongoDriverSyncVersion = '3.12.10'
+    ext.mongoDriverSyncVersion = "4.3.3"
 
     testCompile "org.testng:testng:$testNgVersion"
     testCompile "org.assertj:assertj-core:$assertjVersion"

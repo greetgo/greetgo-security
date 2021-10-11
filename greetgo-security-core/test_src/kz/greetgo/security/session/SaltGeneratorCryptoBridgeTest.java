@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 
 import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SaltGeneratorCryptoBridgeTest {
 
