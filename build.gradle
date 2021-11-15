@@ -33,9 +33,10 @@ subprojects {
     ext.greetgoUtilVersion = "1.0.3"
     ext.zooCuratorRecipesVersion = "5.1.0"
     ext.caffeineVersion = "2.8.5"
+    ext.argon2Version = "2.11"
 
-    ext.greetgoDbVersion = '2.3.6'
-    ext.mongoDriverVersion = '3.8.1'
+    ext.greetgoDbVersion = '2.3.7'
+    ext.mongoDriverVersion = '3.12.10'
 
     testCompile "org.testng:testng:$testNgVersion"
     testCompile "org.assertj:assertj-core:$assertjVersion"

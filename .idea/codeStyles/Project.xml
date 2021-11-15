@@ -17,7 +17,7 @@
         <value />
       </option>
     </JavaCodeStyleSettings>
-    <PostgresCodeStyleSettings version="5">
+    <PostgresCodeStyleSettings version="6">
       <option name="INSERT_OPENING" value="3" />
       <option name="INSERT_VALUES_EL_LINE" value="0" />
       <option name="FROM_EL_COMMA" value="1" />

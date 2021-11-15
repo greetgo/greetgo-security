@@ -18,7 +18,7 @@ import static kz.greetgo.conf.sys_params.SysParams.oracleAdminPassword;
 import static kz.greetgo.conf.sys_params.SysParams.oracleAdminPort;
 import static kz.greetgo.conf.sys_params.SysParams.oracleAdminSid;
 import static kz.greetgo.conf.sys_params.SysParams.oracleAdminUserid;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class OracleFactory {
   public String username;

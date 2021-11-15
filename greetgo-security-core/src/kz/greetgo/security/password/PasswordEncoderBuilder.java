@@ -1,12 +1,17 @@
 package kz.greetgo.security.password;
 
-import org.bson.internal.Base64;
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class PasswordEncoderBuilder {
+
+  private int iterations  = 4;
+  private int memory      = 128 * 128;
+  private int parallelism = 10;
+
+  private boolean built = false;
 
   PasswordEncoderBuilder() {}
 
@@ -14,52 +19,48 @@ public class PasswordEncoderBuilder {
     return new PasswordEncoderBuilder();
   }
 
-  String salt = null;
+  private void checkBuilt() {
+    if (built) {
+      throw new RuntimeException("RJ7gBe1nxE :: Already built");
+    }
+  }
 
-  public PasswordEncoderBuilder setSalt(String salt) {
-    checkBuilt();
-    this.salt = salt;
+  public PasswordEncoderBuilder iterations(int iterations) {
+    this.iterations = iterations;
     return this;
   }
 
-  private void checkBuilt() {
-    if (built) throw new RuntimeException("Already built");
+  public PasswordEncoderBuilder memory(int memory) {
+    this.memory = memory;
+    return this;
   }
 
-  private boolean built = false;
+  public PasswordEncoderBuilder parallelism(int parallelism) {
+    this.parallelism = parallelism;
+    return this;
+  }
 
   public PasswordEncoder build() {
-    if (salt == null) throw new RuntimeException("Please, define salt calling method 'setSalt(...)'");
+    checkBuilt();
+    Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
     built = true;
     return new PasswordEncoder() {
       @Override
       public String encode(String password) {
-        try {
-
-          MessageDigest digest = MessageDigest.getInstance("SHA-256");
-
-          digest.update(salt.getBytes(StandardCharsets.UTF_8));
-
-          if (password != null) {
-            digest.update(password.getBytes(StandardCharsets.UTF_8));
-          }
-
-          String base64 = Base64.encode(digest.digest());
-          base64 = base64.replace('/', '$');
-          base64 = base64.replace('+', '~');
-          base64 = base64.substring(0, base64.length() - 1);
-
-          return base64;
-
-        } catch (NoSuchAlgorithmException e) {
-          throw new RuntimeException(e);
-        }
+        return argon2.hash(iterations, memory, parallelism, passwordToBytes(password));
       }
 
       @Override
       public boolean verify(String password, String encodedPassword) {
-        return encode(password).equals(encodedPassword);
+        return argon2.verify(encodedPassword, passwordToBytes(password));
       }
     };
+  }
+
+  private byte[] passwordToBytes(String password) {
+    if (password == null) {
+      password = "";
+    }
+    return password.getBytes(UTF_8);
   }
 }

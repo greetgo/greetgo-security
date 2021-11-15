@@ -12,12 +12,16 @@ dependencies {
   compileOnly "org.mongodb:mongo-java-driver:$mongoDriverVersion"
   testCompile "org.mongodb:mongo-java-driver:$mongoDriverVersion"
 
-  testCompile "kz.greetgo.conf:greetgo.sys_params:1.0.2"
+  //noinspection SpellCheckingInspection
+  compileOnly "de.mkammerer:argon2-jvm:$argon2Version"
+  testCompile "de.mkammerer:argon2-jvm:$argon2Version"
+
+  testCompile 'kz.greetgo.conf:greetgo.sys_params:2.0.0'
   testCompile "kz.greetgo:greetgo.util:2.0.0"
 
   //jdbc drivers
   //noinspection SpellCheckingInspection
-  testCompile "org.postgresql:postgresql:9.4-1202-jdbc42"
+  testCompile 'org.postgresql:postgresql:42.3.1'
 
   if (ggRepo?.trim()) {
     //noinspection SpellCheckingInspection

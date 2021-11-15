@@ -1,18 +1,18 @@
 package kz.greetgo.security.password;
 
-import kz.greetgo.util.RND;
 import org.testng.annotations.Test;
 
 import static kz.greetgo.security.SecurityBuilders.newPasswordEncoderBuilder;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PasswordEncoderTest {
   @Test
   public void encode_verify() {
 
-    PasswordEncoder passwordEncoder = newPasswordEncoderBuilder()
-      .setSalt("asd234yry5654o32l56")
-      .build();
+    PasswordEncoder passwordEncoder = newPasswordEncoderBuilder().iterations(4)
+                                                                 .memory(64 * 64)
+                                                                 .parallelism(8)
+                                                                 .build();
 
     //
     //
@@ -21,7 +21,10 @@ public class PasswordEncoderTest {
     //
     //
 
-    assertThat(encodedPassword1).isEqualTo(encodedPassword2);
+    System.out.println("3fDToBHu95 :: encodedPassword1 = " + encodedPassword1);
+    System.out.println("3fDToBHu95 :: encodedPassword2 = " + encodedPassword2);
+
+    assertThat(encodedPassword1).isNotEqualTo(encodedPassword2);
 
     {
       boolean verifyResult = passwordEncoder.verify("111", encodedPassword1);
@@ -36,9 +39,10 @@ public class PasswordEncoderTest {
   @Test
   public void encode_verify_nullAndEmpty() {
 
-    PasswordEncoder passwordEncoder = newPasswordEncoderBuilder()
-      .setSalt(RND.str(10))
-      .build();
+    PasswordEncoder passwordEncoder = newPasswordEncoderBuilder().iterations(4)
+                                                                 .memory(64 * 64)
+                                                                 .parallelism(8)
+                                                                 .build();
 
     //
     //
@@ -47,7 +51,7 @@ public class PasswordEncoderTest {
     //
     //
 
-    assertThat(encodedPassword1).isEqualTo(encodedPassword2);
+    assertThat(encodedPassword1).isNotEqualTo(encodedPassword2);
 
     {
       boolean verifyResult = passwordEncoder.verify(null, encodedPassword1);
