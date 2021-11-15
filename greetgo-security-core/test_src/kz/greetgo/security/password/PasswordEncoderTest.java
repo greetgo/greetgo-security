@@ -9,7 +9,7 @@ public class PasswordEncoderTest {
   @Test
   public void encode_verify() {
 
-    PasswordEncoder passwordEncoder = newPasswordEncoderBuilder().iterations(4)
+    PasswordEncoder passwordEncoder = newPasswordEncoderBuilder().iterations(10)
                                                                  .memory(64 * 64)
                                                                  .parallelism(8)
                                                                  .build();
@@ -26,6 +26,10 @@ public class PasswordEncoderTest {
 
     assertThat(encodedPassword1).isNotEqualTo(encodedPassword2);
 
+    {
+      boolean verifyResult = passwordEncoder.verify("111", encodedPassword2);
+      assertThat(verifyResult).isTrue();
+    }
     {
       boolean verifyResult = passwordEncoder.verify("111", encodedPassword1);
       assertThat(verifyResult).isTrue();
