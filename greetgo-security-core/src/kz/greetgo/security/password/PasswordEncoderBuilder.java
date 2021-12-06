@@ -52,6 +52,9 @@ public class PasswordEncoderBuilder {
 
       @Override
       public boolean verify(String password, String encodedPassword) {
+        if (encodedPassword == null) {
+          return false;
+        }
         return argon2.verify(encodedPassword, passwordToBytes(password));
       }
     };
