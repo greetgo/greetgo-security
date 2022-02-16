@@ -16,20 +16,20 @@ import static com.mongodb.client.model.Filters.lt;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
 import static java.util.Objects.requireNonNull;
-import static kz.greetgo.security.session.Serializer.deserializeFromStr;
 import static kz.greetgo.security.util.MongoUtil.toDate;
 import static kz.greetgo.security.util.MongoUtil.toStr;
 
 class SessionStorageMongo implements SessionStorage {
   private final MongoCollection<Document> collection;
+  private final SessionSerializer         sessionSerializer;
 
   static class Names {
-    String id = "id";
-    String sessionData = "sessionData";
+    String id             = "id";
+    String sessionData    = "sessionData";
     String lastModifiedAt = "lastModifiedAt";
-    String insertedAt = "insertedAt";
-    String token = "token";
-    String actual = "actual";
+    String insertedAt     = "insertedAt";
+    String token          = "token";
+    String actual         = "actual";
   }
 
   private final Names names = new Names();
@@ -39,8 +39,10 @@ class SessionStorageMongo implements SessionStorage {
     return "SessionStorageMongo{" + collection.getNamespace() + "}";
   }
 
-  public SessionStorageMongo(MongoCollection<Document> collection) {
-    this.collection = collection;
+  public SessionStorageMongo(MongoCollection<Document> collection,
+                             SessionSerializer sessionSerializer) {
+    this.collection        = collection;
+    this.sessionSerializer = sessionSerializer;
   }
 
   private final AtomicBoolean wasEnsureIndexId = new AtomicBoolean(false);
@@ -65,7 +67,7 @@ class SessionStorageMongo implements SessionStorage {
 
     ensureIndexId();
 
-    String sessionDataStr = Serializer.serializeToStr(sessionData);
+    String sessionDataStr = sessionSerializer.serializeToStr(sessionData);
 
     Document insert = new Document();
     insert.append(names.id, identity.id);
@@ -90,10 +92,10 @@ class SessionStorageMongo implements SessionStorage {
     }
 
     //@formatter:off
-    String token       =                      toStr( found.get( names.token           ));
-    Object sessionData = deserializeFromStr(  toStr( found.get( names.sessionData     )));
-    Date insertedAt    =                     toDate( found.get( names.insertedAt      ));
-    Date lastTouchedAt =                     toDate( found.get( names.lastModifiedAt  ));
+    String token       =                                        toStr( found.get( names.token           ));
+    Object sessionData = sessionSerializer.deserializeFromStr(  toStr( found.get( names.sessionData     ))   );
+    Date insertedAt    =                                       toDate( found.get( names.insertedAt      ));
+    Date lastTouchedAt =                                       toDate( found.get( names.lastModifiedAt  ));
     //@formatter:on
 
     return new SessionRow(token, sessionData, insertedAt, lastTouchedAt);
@@ -109,9 +111,9 @@ class SessionStorageMongo implements SessionStorage {
     ensureIndexId();
 
     Document found = collection.find(filterById(sessionId))
-      .projection(fields(include(names.lastModifiedAt)))
-      .limit(1)
-      .first();
+                               .projection(fields(include(names.lastModifiedAt)))
+                               .limit(1)
+                               .first();
 
     if (found == null) {
       return null;

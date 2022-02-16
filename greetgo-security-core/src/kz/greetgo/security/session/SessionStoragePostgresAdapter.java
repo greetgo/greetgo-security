@@ -4,8 +4,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 class SessionStoragePostgresAdapter extends SessionStorageAdapterAbstract implements SessionStorage {
-  SessionStoragePostgresAdapter(SessionStorageJdbcBuilder.Names names) {
-    super(names);
+  SessionStoragePostgresAdapter(SessionStorageJdbcBuilder.Names names,
+                                SessionSerializer sessionSerializer) {
+    super(names, sessionSerializer);
   }
 
   @Override
@@ -17,7 +18,7 @@ class SessionStoragePostgresAdapter extends SessionStorageAdapterAbstract implem
   protected String insertSessionSql(List<Object> sqlParams, SessionIdentity identity, Object sessionData) {
     sqlParams.add(identity.id);
     sqlParams.add(identity.token);
-    sqlParams.add(Serializer.serialize(sessionData));
+    sqlParams.add(sessionSerializer.serializeToStr(sessionData));
 
     return "insert into " + names.tableName + " (" +
       names.id +
@@ -33,7 +34,7 @@ class SessionStoragePostgresAdapter extends SessionStorageAdapterAbstract implem
     return "create table " + names.tableName + " (" +
       "  " + names.id + " varchar(50) not null," +
       "  " + names.token + " varchar(50)," +
-      "  " + names.sessionData + " byTea," +
+      "  " + names.sessionData + " text," +
       "  " + names.insertedAt + " timestamp not null default clock_timestamp()," +
       "  " + names.lastTouchedAt + " timestamp not null default clock_timestamp()," +
       "  primary key(" + names.id + ")" +

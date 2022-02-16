@@ -4,8 +4,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 class SessionStorageOracleAdapter extends SessionStorageAdapterAbstract implements SessionStorage {
-  SessionStorageOracleAdapter(SessionStorageJdbcBuilder.Names names) {
-    super(names);
+  SessionStorageOracleAdapter(SessionStorageJdbcBuilder.Names names,
+                              SessionSerializer sessionSerializer) {
+    super(names, sessionSerializer);
   }
 
   @Override
@@ -17,7 +18,7 @@ class SessionStorageOracleAdapter extends SessionStorageAdapterAbstract implemen
   protected String insertSessionSql(List<Object> sqlParams, SessionIdentity identity, Object sessionData) {
     sqlParams.add(identity.id);
     sqlParams.add(identity.token);
-    sqlParams.add(Serializer.serialize(sessionData));
+    sqlParams.add(sessionSerializer.serializeToStr(sessionData));
 
     return "insert into " + names.tableName + " (" +
       names.id +
@@ -33,7 +34,7 @@ class SessionStorageOracleAdapter extends SessionStorageAdapterAbstract implemen
     return "create table " + names.tableName + " (" +
       "  " + names.id + " varchar2(50) not null," +
       "  " + names.token + " varchar2(50)," +
-      "  " + names.sessionData + " blob," +
+      "  " + names.sessionData + " clob," +
       "  " + names.insertedAt + " timestamp default current_timestamp not null ," +
       "  " + names.lastTouchedAt + " timestamp default current_timestamp not null," +
       "  primary key(" + names.id + ")" +

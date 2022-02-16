@@ -142,7 +142,7 @@ public class OracleFactory {
     return DriverManager.getConnection(url(), username, password);
   }
 
-  private static AtomicReference<Boolean> hasOracleDriverCache = new AtomicReference<>(null);
+  private static final AtomicReference<Boolean> hasOracleDriverCache = new AtomicReference<>(null);
 
   public static boolean hasOracleDriver() {
     {

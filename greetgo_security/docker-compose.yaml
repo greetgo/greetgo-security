@@ -2,23 +2,26 @@ version: "2.3"
 services:
 
   postgres:
-    image: postgres:12.0
+    image: postgres:13.4
     mem_limit: 200M
-    container_name: pg_greetgo_security
+    container_name: greetgo-security-pg
     restart: always
     ports:
       - "12012:5432"
     volumes:
-      - ./volumes/postgres:/var/lib/postgresql/data
+      - ~/volumes/greetgo-security/postgres:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_PASSWORD: "899ZS7UybS5dcb50FKvWLaPjqJp8VK"
 
   mongo:
-    image: mongo:4.2.0
+    image: mongo:4.4.9
     mem_limit: 700M
+    container_name: greetgo-security-mongo
     restart: always
     ports:
       - "12013:27017"
     volumes:
-      - ./volumes/mongo-db:/data/db
+      - ~/volumes/greetgo-security/mongo-db:/data/db
       - ./mongo-init:/docker-entrypoint-initdb.d
     command: [--bind_ip_all, --replSet, main]

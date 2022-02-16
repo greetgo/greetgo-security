@@ -9,13 +9,7 @@ echo "%%%"
 docker-compose down
 
 echo "%%%"
-echo "%%% Удаляем вольюмы : sudo rm -rf ./volumes/"
+echo "%%% Удаляем вольюмы"
 echo "%%%"
 
-docker run --rm -i \
-  -v "$PWD/volumes:/volumes" \
-  busybox:1.31.0 \
-  find /volumes/ -maxdepth 1 -mindepth 1 -exec rm -rf {} \;
-
-rm -rf ./volumes/
-
+sh remove-volumes.sh

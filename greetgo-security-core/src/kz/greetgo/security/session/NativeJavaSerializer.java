@@ -12,12 +12,12 @@ import java.io.ObjectOutputStream;
 import static kz.greetgo.security.util.Base64Util.base64ToBytes;
 import static kz.greetgo.security.util.Base64Util.bytesToBase64;
 
-public class Serializer {
-  public static byte[] serialize(Object object) {
+public class NativeJavaSerializer {
+  static byte[] serialize(Object object) {
     try {
 
       ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-      ObjectOutputStream out = new ObjectOutputStream(bOut);
+      ObjectOutputStream    out  = new ObjectOutputStream(bOut);
 
       out.writeObject(object);
 
@@ -28,7 +28,7 @@ public class Serializer {
     }
   }
 
-  public static <T> T deserialize(byte[] bytes) {
+  static <T> T deserialize(byte[] bytes) {
     try {
 
       if (bytes == null) {
@@ -36,7 +36,7 @@ public class Serializer {
       }
 
       ByteArrayInputStream bIn = new ByteArrayInputStream(bytes);
-      ObjectInputStream in = new ObjectInputStream(bIn);
+      ObjectInputStream    in  = new ObjectInputStream(bIn);
       //noinspection unchecked
       return (T) in.readObject();
 
@@ -50,11 +50,25 @@ public class Serializer {
   }
 
 
-  public static String serializeToStr(Object object) {
+  static String serializeToStrStatic(Object object) {
     return bytesToBase64(serialize(object));
   }
 
-  public static <T> T deserializeFromStr(String serializedStr) {
+  static <T> T deserializeFromStrStatic(String serializedStr) {
     return deserialize(base64ToBytes(serializedStr));
+  }
+
+  public static SessionSerializer create() {
+    return new SessionSerializer() {
+      @Override
+      public String serializeToStr(Object sessionHolder) {
+        return serializeToStrStatic(sessionHolder);
+      }
+
+      @Override
+      public <T> T deserializeFromStr(String sessionHolderSerializedStr) {
+        return deserializeFromStrStatic(sessionHolderSerializedStr);
+      }
+    };
   }
 }

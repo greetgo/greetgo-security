@@ -6,7 +6,6 @@ import kz.greetgo.db.Jdbc;
 import kz.greetgo.security.SecurityBuilders;
 import kz.greetgo.security.factory.JdbcFactory;
 import kz.greetgo.security.factory.OracleFactory;
-import kz.greetgo.security.jdbc.SelectBytesField;
 import kz.greetgo.security.jdbc.SelectDateField;
 import kz.greetgo.security.jdbc.SelectNow;
 import kz.greetgo.security.jdbc.SelectStrField;
@@ -82,20 +81,20 @@ public class SessionStorageTest {
 
     String tableName = "s_storage_" + RND.intStr(7);
     SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .setTableName(tableName)
-      .setFieldId("id")
-      .setFieldToken("unique_token")
-      .setFieldSessionData("user_data")
-      .setFieldInsertedAt("ins_at")
-      .setFieldLastTouchedAt("touched_at")
-      .build();
+                                                    .setJdbc(dbType, jdbc)
+                                                    .setTableName(tableName)
+                                                    .setFieldId("id")
+                                                    .setFieldToken("unique_token")
+                                                    .setFieldSessionData("user_data")
+                                                    .setFieldInsertedAt("ins_at")
+                                                    .setFieldLastTouchedAt("touched_at")
+                                                    .build();
 
     SessionIdentity identity = new SessionIdentity(RND.intStr(15), RND.str(10));
 
     TestSessionData sessionData = new TestSessionData();
     sessionData.userId = RND.str(10);
-    sessionData.role = RND.str(10);
+    sessionData.role   = RND.str(10);
 
     //
     //
@@ -108,8 +107,8 @@ public class SessionStorageTest {
 
     assertThat(jdbc.execute(new SelectDateField("ins_at", tableName, identity.id))).isNotNull();
     assertThat(jdbc.execute(new SelectDateField("touched_at", tableName, identity.id))).isNotNull();
-    byte[] bytes = jdbc.execute(new SelectBytesField("user_data", tableName, identity.id));
-    TestSessionData actualSessionData = Serializer.deserialize(bytes);
+    String          strContent        = jdbc.execute(new SelectStrField("user_data", tableName, identity.id));
+    TestSessionData actualSessionData = NativeJavaSerializer.deserializeFromStrStatic(strContent);
     assertThat(actualSessionData).isNotNull();
     assertThat(actualSessionData.userId).isEqualTo(sessionData.userId);
     assertThat(actualSessionData.role).isEqualTo(sessionData.role);
@@ -142,7 +141,7 @@ public class SessionStorageTest {
 
     list.add(new Object[]{
       SecurityBuilders.newSessionStorageBuilder()
-        .setMongoCollection(sessionStorage)
+                      .setMongoCollection(sessionStorage)
         .build()
     });
   }
@@ -152,7 +151,7 @@ public class SessionStorageTest {
     Jdbc jdbc = jdbcFactory.create();
     list.add(new Object[]{
       SecurityBuilders.newSessionStorageBuilder()
-        .setJdbc(jdbcFactory.dbType, jdbc)
+                      .setJdbc(jdbcFactory.dbType, jdbc)
         .build()
     });
   }
@@ -164,7 +163,7 @@ public class SessionStorageTest {
 
     TestSessionData sessionData = new TestSessionData();
     sessionData.userId = RND.str(10);
-    sessionData.role = RND.str(10);
+    sessionData.role   = RND.str(10);
 
     //
     //
@@ -223,7 +222,7 @@ public class SessionStorageTest {
   @SuppressWarnings("SameParameterValue")
   private void setDateFieldInAllTable(Jdbc jdbc, String fieldName, Date time) {
     jdbc.execute(new Update("update session_storage set " + fieldName + " = ?",
-      singletonList(new Timestamp(time.getTime()))));
+                            singletonList(new Timestamp(time.getTime()))));
   }
 
   @Test(dataProvider = "dbTypeDataProvider")
@@ -232,8 +231,8 @@ public class SessionStorageTest {
     Jdbc jdbc = jdbcFactory.create();
 
     SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+                                                    .setJdbc(dbType, jdbc)
+                                                    .build();
 
     SessionIdentity identity = new SessionIdentity(RND.intStr(15), null);
 
@@ -275,8 +274,8 @@ public class SessionStorageTest {
     Jdbc jdbc = jdbcFactory.create();
 
     SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+                                                    .setJdbc(dbType, jdbc)
+                                                    .build();
 
     SessionIdentity identity = new SessionIdentity(RND.intStr(15), null);
 

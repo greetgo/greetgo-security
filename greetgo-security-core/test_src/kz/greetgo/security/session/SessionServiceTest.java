@@ -23,8 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SessionServiceTest {
 
   TestSessionStorage sessionStorage;
-  SessionService sessionService;
-  SessionService sessionService2;
+  SessionService     sessionService;
+  SessionService     sessionService2;
   SessionServiceImpl impl;
   SessionServiceImpl impl2;
   final SaltGenerator saltGenerator = str -> "S" + str.substring(0, 5) + "S";
@@ -81,8 +81,8 @@ public class SessionServiceTest {
   @Test
   public void getSessionData() {
 
-    String sessionData = "SESSION DATA " + RND.str(10);
-    SessionIdentity identity = sessionService.createSession(sessionData);
+    String          sessionData = "SESSION DATA " + RND.str(10);
+    SessionIdentity identity    = sessionService.createSession(sessionData);
 
     //
     //
@@ -101,8 +101,8 @@ public class SessionServiceTest {
 
     sessionStorage.clean();
 
-    String sessionData = "SESSION DATA " + RND.str(10);
-    SessionIdentity identity = sessionService.createSession(sessionData);
+    String          sessionData = "SESSION DATA " + RND.str(10);
+    SessionIdentity identity    = sessionService.createSession(sessionData);
 
     assertThat(impl2.sessionCacheMap).doesNotContainKey(identity.id);
 
@@ -135,8 +135,8 @@ public class SessionServiceTest {
   public void getSessionData_fromStorage() {
     sessionStorage.loadSessionCount = 0;
 
-    String sessionData = "SESSION DATA " + RND.str(10);
-    SessionIdentity identity = sessionService.createSession(sessionData);
+    String          sessionData = "SESSION DATA " + RND.str(10);
+    SessionIdentity identity    = sessionService.createSession(sessionData);
 
     impl.sessionCacheMap.clear();
 
@@ -170,8 +170,8 @@ public class SessionServiceTest {
 
   @Test
   public void getSessionData_fromCache() {
-    String sessionData = "SESSION DATA " + RND.str(10);
-    SessionIdentity identity = sessionService.createSession(sessionData);
+    String          sessionData = "SESSION DATA " + RND.str(10);
+    SessionIdentity identity    = sessionService.createSession(sessionData);
 
     impl.sessionCacheMap.clear();
 
@@ -206,12 +206,14 @@ public class SessionServiceTest {
     assertThat(impl.sessionCacheMap).isEmpty();
   }
 
-  @Test
+  @Test(invocationCount = 10)
   public void verifyId() {
-    String id = RND.str(10);
+    String id   = RND.str(10);
     String salt = saltGenerator.generateSalt(id);
 
     String sessionId = new SessionId(salt, id).toString();
+
+    System.out.println("UozSw5rt28 :: sessionId = " + sessionId);
 
     //
     //
@@ -554,7 +556,7 @@ public class SessionServiceTest {
   @Test
   public void removeOldSessions() {
     String youngId = sessionService.createSession(null).id;
-    String oldId = sessionService.createSession(null).id;
+    String oldId   = sessionService.createSession(null).id;
 
     setLastTouchedByInDb(youngId, nowAddHours(-OLD_SESSION_AGE_IN_HOURS + 1));
     setLastTouchedByInDb(oldId, nowAddHours(-OLD_SESSION_AGE_IN_HOURS - 1));

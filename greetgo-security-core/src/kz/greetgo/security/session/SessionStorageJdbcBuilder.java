@@ -7,6 +7,7 @@ import java.util.Objects;
 
 public class SessionStorageJdbcBuilder {
   private final DbType dbType;
+  private final SessionSerializer sessionSerializer;
 
   static class Names {
     Jdbc jdbc = null;
@@ -22,7 +23,8 @@ public class SessionStorageJdbcBuilder {
 
   final Names names = new Names();
 
-  SessionStorageJdbcBuilder(DbType dbType, Jdbc jdbc) {
+  SessionStorageJdbcBuilder(DbType dbType, Jdbc jdbc, SessionSerializer sessionSerializer) {
+    this.sessionSerializer = sessionSerializer;
     Objects.requireNonNull(dbType);
     Objects.requireNonNull(jdbc);
     this.dbType = dbType;
@@ -31,14 +33,14 @@ public class SessionStorageJdbcBuilder {
 
   public SessionStorage build() {
     if (dbType == DbType.Postgres) {
-      return new SessionStoragePostgresAdapter(names);
+      return new SessionStoragePostgresAdapter(names, sessionSerializer);
     }
 
     if (dbType == DbType.Oracle) {
-      return new SessionStorageOracleAdapter(names);
+      return new SessionStorageOracleAdapter(names, sessionSerializer);
     }
 
-    throw new RuntimeException("Unknown db type = " + dbType);
+    throw new RuntimeException("Qxz0GJVfYM :: Unknown db type = " + dbType);
   }
 
   public SessionStorageJdbcBuilder setTableName(String tableName) {

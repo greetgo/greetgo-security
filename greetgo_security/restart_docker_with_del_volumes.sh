@@ -12,18 +12,10 @@ echo "%%%"
 echo "%%% Удаляем вольюмы"
 echo "%%%"
 
-mkdir -p volumes
-
-docker run --rm -i \
-  -v "$PWD/volumes:/volumes" \
-  busybox:1.31.0 \
-  find /volumes/ -maxdepth 1 -mindepth 1 -exec rm -rf {} \;
-
-rm -rvf volumes/
+sh remove-volumes.sh
 
 echo "%%%"
 echo "%%% Запускаем докеровские образы : docker-compose up -d"
 echo "%%%"
 
-mkdir -p volumes
 docker-compose up -d

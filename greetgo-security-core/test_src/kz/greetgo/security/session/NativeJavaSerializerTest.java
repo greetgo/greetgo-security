@@ -9,7 +9,7 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SerializerTest {
+public class NativeJavaSerializerTest {
 
   public static class TestObject implements Serializable {
     public String strField;
@@ -27,7 +27,7 @@ public class SerializerTest {
 
     //
     //
-    byte[] bytes = Serializer.serialize(o1);
+    byte[] bytes = NativeJavaSerializer.serialize(o1);
     //
     //
 
@@ -35,7 +35,7 @@ public class SerializerTest {
 
     //
     //
-    TestObject o2 = Serializer.deserialize(bytes);
+    TestObject o2 = NativeJavaSerializer.deserialize(bytes);
     //
     //
 
@@ -50,7 +50,7 @@ public class SerializerTest {
 
     //
     //
-    byte[] bytes = Serializer.serialize(null);
+    byte[] bytes = NativeJavaSerializer.serialize(null);
     //
     //
 
@@ -58,7 +58,7 @@ public class SerializerTest {
 
     //
     //
-    TestObject o2 = Serializer.deserialize(bytes);
+    TestObject o2 = NativeJavaSerializer.deserialize(bytes);
     //
     //
 
@@ -74,7 +74,7 @@ public class SerializerTest {
 
     //
     //
-    String serializedStr = Serializer.serializeToStr(o1);
+    String serializedStr = NativeJavaSerializer.serializeToStrStatic(o1);
     //
     //
 
@@ -83,7 +83,7 @@ public class SerializerTest {
 
     //
     //
-    TestObject o2 = Serializer.deserializeFromStr(serializedStr);
+    TestObject o2 = NativeJavaSerializer.deserializeFromStrStatic(serializedStr);
     //
     //
 
@@ -98,7 +98,7 @@ public class SerializerTest {
 
     //
     //
-    String serializedStr = Serializer.serializeToStr(null);
+    String serializedStr = NativeJavaSerializer.serializeToStrStatic(null);
     //
     //
 
@@ -106,7 +106,7 @@ public class SerializerTest {
 
     //
     //
-    TestObject o2 = Serializer.deserializeFromStr(serializedStr);
+    TestObject o2 = NativeJavaSerializer.deserializeFromStrStatic(serializedStr);
     //
     //
 
@@ -123,7 +123,7 @@ public class SerializerTest {
 
     //
     //
-    Serializer.deserializeFromStr(serializedStr1);
+    NativeJavaSerializer.deserializeFromStrStatic(serializedStr1);
     //
     //
 

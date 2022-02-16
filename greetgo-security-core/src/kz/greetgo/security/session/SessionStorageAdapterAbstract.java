@@ -20,9 +20,11 @@ import static kz.greetgo.security.util.ErrorUtil.extractSqlException;
 public abstract class SessionStorageAdapterAbstract implements SessionStorage {
 
   protected final SessionStorageJdbcBuilder.Names names;
+  protected final SessionSerializer               sessionSerializer;
 
-  public SessionStorageAdapterAbstract(SessionStorageJdbcBuilder.Names names) {
-    this.names = names;
+  public SessionStorageAdapterAbstract(SessionStorageJdbcBuilder.Names names, SessionSerializer sessionSerializer) {
+    this.names             = names;
+    this.sessionSerializer = sessionSerializer;
     init();
   }
 
@@ -57,14 +59,14 @@ public abstract class SessionStorageAdapterAbstract implements SessionStorage {
   @Override
   public void insertSession(SessionIdentity identity, Object sessionData) {
     List<Object> sqlParams = new ArrayList<>();
-    String sql = insertSessionSql(sqlParams, identity, sessionData);
+    String       sql       = insertSessionSql(sqlParams, identity, sessionData);
     names.jdbc.execute(new Update(sql, sqlParams));
   }
 
   @Override
   public boolean zeroSessionAge(String sessionId) {
     List<Object> sqlParams = new ArrayList<>();
-    String sql = zeroSessionAgeSql(sqlParams, sessionId);
+    String       sql       = zeroSessionAgeSql(sqlParams, sessionId);
     return names.jdbc.execute(new Update(sql, sqlParams)) > 0;
   }
 
@@ -73,7 +75,7 @@ public abstract class SessionStorageAdapterAbstract implements SessionStorage {
   @Override
   public Date loadLastTouchedAt(String sessionId) {
     List<Object> sqlParams = new ArrayList<>();
-    String sql = loadLastTouchedAtSql(sqlParams, sessionId);
+    String       sql       = loadLastTouchedAtSql(sqlParams, sessionId);
     return names.jdbc.execute(new SelectDateOrNull(sql, sqlParams));
   }
 
@@ -82,7 +84,7 @@ public abstract class SessionStorageAdapterAbstract implements SessionStorage {
   @Override
   public int removeSessionsOlderThan(int ageInHours) {
     List<Object> sqlParams = new ArrayList<>();
-    String sql = removeSessionsOlderThanSql(sqlParams, ageInHours);
+    String       sql       = removeSessionsOlderThanSql(sqlParams, ageInHours);
     return names.jdbc.execute(new Update(sql, sqlParams));
   }
 
@@ -95,10 +97,10 @@ public abstract class SessionStorageAdapterAbstract implements SessionStorage {
 
     return names.jdbc.execute(new SelectFirstOrNull<>(sql, singletonList(sessionId), rs -> {
 
-      String token = rs.getString(names.token);
-      Object sessionData = Serializer.deserialize(rs.getBytes(names.sessionData));
-      Date insertedAt = rs.getTimestamp(names.insertedAt);
-      Date lastTouchedAt = rs.getTimestamp(names.lastTouchedAt);
+      String token         = rs.getString(names.token);
+      Object sessionData   = sessionSerializer.deserializeFromStr(rs.getString(names.sessionData));
+      Date   insertedAt    = rs.getTimestamp(names.insertedAt);
+      Date   lastTouchedAt = rs.getTimestamp(names.lastTouchedAt);
 
       return new SessionRow(token, sessionData, insertedAt, lastTouchedAt);
     }));

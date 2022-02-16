@@ -9,15 +9,22 @@ public class SessionStorageBuilder {
 
   private SessionStorageBuilder() {}
 
+  private SessionSerializer sessionSerializer = NativeJavaSerializer.create();
+
+  public SessionStorageBuilder sessionSerializer(SessionSerializer sessionSerializer) {
+    this.sessionSerializer = sessionSerializer;
+    return this;
+  }
+
   public static SessionStorageBuilder newBuilder() {
     return new SessionStorageBuilder();
   }
 
   public SessionStorageJdbcBuilder setJdbc(DbType dbType, Jdbc jdbc) {
-    return new SessionStorageJdbcBuilder(dbType, jdbc);
+    return new SessionStorageJdbcBuilder(dbType, jdbc, sessionSerializer);
   }
 
   public SessionStorageMongoBuilder setMongoCollection(MongoCollection<Document> collection) {
-    return new SessionStorageMongoBuilder(collection);
+    return new SessionStorageMongoBuilder(collection, sessionSerializer);
   }
 }
