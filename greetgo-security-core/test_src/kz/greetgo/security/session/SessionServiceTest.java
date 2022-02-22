@@ -401,102 +401,6 @@ public class SessionServiceTest {
   }
 
   @Test
-  public void zeroSessionAge_usedCache() {
-    SessionIdentity identity = sessionService.createSession(null);
-
-    {
-      SessionServiceImpl.SessionCache cache = impl.sessionCacheMap.get(identity.id);
-      assertThat(cache).isNotNull();
-      cache.lastTouchedAt.set(nowAddHours(-10));
-    }
-
-    sessionStorage.loadSessionCount = 0;
-
-    //
-    //
-    sessionService.zeroSessionAge(identity.id);
-    //
-    //
-
-    assertThat(sessionStorage.loadSessionCount).isZero();
-
-    {
-      SessionServiceImpl.SessionCache cache = impl.sessionCacheMap.get(identity.id);
-      assertThat(cache).isNotNull();
-      assertThat(cache.lastTouchedAt.get()).isAfter(nowAddHours(-1));
-    }
-  }
-
-  @Test
-  public void zeroSessionAge_noCache() {
-
-    SessionIdentity identity = sessionService.createSession(null);
-
-    sessionStorage.sessionMap.get(identity.id).lastTouchedAt = nowAddHours(-10);
-
-    impl.sessionCacheMap.clear();
-    sessionStorage.loadSessionCount = 0;
-
-    //
-    //
-    sessionService.zeroSessionAge(identity.id);
-    //
-    //
-
-    assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
-
-    {
-      SessionServiceImpl.SessionCache cache = impl.sessionCacheMap.get(identity.id);
-      assertThat(cache).isNotNull();
-      assertThat(cache.lastTouchedAt.get()).isAfter(nowAddHours(-1));
-    }
-    {
-      SessionDot sessionDot = sessionStorage.sessionMap.get(identity.id);
-      assertThat(sessionDot).isNotNull();
-      assertThat(sessionDot.lastTouchedAt)
-        .describedAs("Session must be being pinging only in cache")
-        .isBefore(nowAddHours(-1));
-    }
-  }
-
-  @Test
-  public void zeroSessionAge_leftSessionId() {
-
-    String sessionId = RND.str(10);
-
-    sessionStorage.loadSessionCount = 0;
-
-    //
-    //
-    sessionService.zeroSessionAge(sessionId);
-    //
-    //
-
-    assertThat(sessionStorage.loadSessionCount).isZero();
-  }
-
-  @Test
-  public void zeroSessionAge_noSessionInDb() {
-
-    SessionIdentity identity = sessionService.createSession(null);
-
-    sessionStorage.sessionMap.remove(identity.id);
-
-    impl.sessionCacheMap.clear();
-    sessionStorage.loadSessionCount = 0;
-
-    //
-    //
-    sessionService.zeroSessionAge(identity.id);
-    //
-    //
-
-    assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
-
-    assertThat(impl.sessionCacheMap).doesNotContainKey(identity.id);
-  }
-
-  @Test
   public void removeSession() {
     SessionIdentity identity = sessionService.createSession(null);
 
@@ -563,7 +467,7 @@ public class SessionServiceTest {
 
     //
     //
-    sessionService.removeOldSessions();
+    sessionService.removeOldSessions(OLD_SESSION_AGE_IN_HOURS);
     //
     //
 
@@ -574,76 +478,6 @@ public class SessionServiceTest {
     assertThat(sessionStorage.sessionMap).doesNotContainKey(oldId);
     assertThat(impl.sessionCacheMap).doesNotContainKey(oldId);
     assertThat(impl.removedSessionIds).containsKey(oldId);
-  }
-
-  @Test
-  public void syncCache_existsInCache_absentInDb() {
-
-    String sessionId = RND.str(10);
-    impl.sessionCacheMap.put(sessionId, new SessionServiceImpl.SessionCache(sessionId, RND.str(10), new Date()));
-
-    sessionStorage.loadSessionCount = 0;
-
-    //
-    //
-    sessionService.syncCache();
-    //
-    //
-
-    assertThat(impl.sessionCacheMap).doesNotContainKey(sessionId);
-    assertThat(impl.removedSessionIds).containsKey(sessionId);
-
-    assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
-  }
-
-  @Test
-  public void syncCache_cacheYoungerThenDb() {
-
-    String sessionId = sessionService.createSession(null).id;
-
-    impl.sessionCacheMap.get(sessionId).lastTouchedAt.set(nowAddHours(-10));
-    sessionStorage.sessionMap.get(sessionId).lastTouchedAt = nowAddHours(-5);
-
-    sessionStorage.loadSessionCount = 0;
-
-    //
-    //
-    sessionService.syncCache();
-    //
-    //
-
-    assertThat(impl.sessionCacheMap).containsKey(sessionId);
-    assertThat(impl.removedSessionIds).doesNotContainKey(sessionId);
-
-    assertThat(impl.sessionCacheMap.get(sessionId).lastTouchedAt.get()).isAfter(nowAddHours(-7));
-    assertThat(sessionStorage.sessionMap.get(sessionId).lastTouchedAt).isAfter(nowAddHours(-7));
-
-    assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
-  }
-
-  @Test
-  public void syncCache_cacheOlderThenDb() {
-
-    String sessionId = sessionService.createSession(null).id;
-
-    impl.sessionCacheMap.get(sessionId).lastTouchedAt.set(nowAddHours(-5));
-    sessionStorage.sessionMap.get(sessionId).lastTouchedAt = nowAddHours(-10);
-
-    sessionStorage.loadSessionCount = 0;
-
-    //
-    //
-    sessionService.syncCache();
-    //
-    //
-
-    assertThat(impl.sessionCacheMap).containsKey(sessionId);
-    assertThat(impl.removedSessionIds).doesNotContainKey(sessionId);
-
-    assertThat(impl.sessionCacheMap.get(sessionId).lastTouchedAt.get()).isAfter(nowAddHours(-7));
-    assertThat(sessionStorage.sessionMap.get(sessionId).lastTouchedAt).isAfter(nowAddHours(-7));
-
-    assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
   }
 
   @Test

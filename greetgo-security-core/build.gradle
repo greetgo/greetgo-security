@@ -36,7 +36,7 @@ dependencies {
 install.group = "upload"
 
 uploadToMavenCentral {
-  description = 'Security infrastructure used in greetgo!'
+  description = 'Security infrastructure used in greetgo!: core logic'
   url = 'https://github.com/greetgo/greetgo-security'
   scm {
     url = 'https://github.com/greetgo/greetgo-security.git'

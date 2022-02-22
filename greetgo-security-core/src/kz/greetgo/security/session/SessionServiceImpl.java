@@ -4,16 +4,13 @@ import kz.greetgo.security.errors.SerializedClassChanged;
 import kz.greetgo.security.session.cache.Cache;
 import kz.greetgo.security.session.cache.CacheBuilder;
 
-import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -22,30 +19,6 @@ import java.util.stream.Collectors;
 
 class SessionServiceImpl implements SessionService {
   private final SessionServiceBuilder builder;
-
-  @SuppressWarnings("SpellCheckingInspection")
-  private static final String ENG     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  private static final String DEG     = "0123456789";
-  private static final char[] ALL     = (ENG.toLowerCase() + ENG.toUpperCase() + DEG).toCharArray();
-  private static final int    ALL_LEN = ALL.length;
-  private final        Random random  = new SecureRandom();
-
-  private String generateId(int length) {
-
-    int[] randomIndexes = random.ints()
-                                .limit(length)
-                                .map(i -> i < 0 ? -i : i)
-                                .map(i -> i % ALL_LEN)
-                                .toArray();
-
-    char[] chars = new char[length];
-
-    for (int i = 0; i < length; i++) {
-      chars[i] = ALL[randomIndexes[i]];
-    }
-
-    return new String(chars);
-  }
 
   public SessionServiceImpl(SessionServiceBuilder builder) {
     this.builder     = builder;
@@ -81,10 +54,10 @@ class SessionServiceImpl implements SessionService {
 
   @Override
   public SessionIdentity createSession(Object sessionData) {
-    String          sessionIdPart = generateId(builder.sessionIdLength);
+    String          sessionIdPart = SessionGenId.generate(builder.sessionIdLength);
     String          sessionSalt   = builder.saltGenerator.generateSalt(sessionIdPart);
     String          sessionId     = new SessionId(sessionSalt, sessionIdPart).toString();
-    String          token         = generateId(builder.tokenLength);
+    String          token         = SessionGenId.generate(builder.tokenLength);
     SessionIdentity identity      = new SessionIdentity(sessionId, token);
 
     builder.storage.insertSession(identity, sessionData);
@@ -246,33 +219,6 @@ class SessionServiceImpl implements SessionService {
   }
 
   @Override
-  public void zeroSessionAge(String sessionId) {
-
-    if (!verifyId(sessionId)) {
-      return;
-    }
-
-    if (zeroSessionAgeInCacheIfExists(sessionId)) {
-      return;
-    }
-
-    if (loadSession(sessionId).isEmpty()) {
-      return;
-    }
-
-    zeroSessionAgeInCacheIfExists(sessionId);
-  }
-
-  private boolean zeroSessionAgeInCacheIfExists(String sessionId) {
-    SessionCache sessionCache = sessionCacheMap.get(sessionId);
-    if (sessionCache == null) {
-      return false;
-    }
-    sessionCache.lastTouchedAt.set(new Date());
-    return true;
-  }
-
-  @Override
   public void removeSession(String sessionId) {
     if (!verifyId(sessionId)) {
       return;
@@ -282,13 +228,14 @@ class SessionServiceImpl implements SessionService {
     removedSessionIds.put(sessionId, sessionId);
   }
 
+
   @Override
-  public void removeOldSessions() {
+  public void removeOldSessions(int hoursOld) {
 
     builder.storage.removeSessionsOlderThan(builder.oldSessionAgeInHours);
 
     Calendar calendar = new GregorianCalendar();
-    calendar.add(Calendar.HOUR, -builder.oldSessionAgeInHours);
+    calendar.add(Calendar.HOUR, -hoursOld);
 
     Set<String> removingIds = sessionCacheMap.entrySet().stream()
                                              .filter(s -> s.getValue().lastTouchedAt.get().before(calendar.getTime()))
@@ -296,36 +243,12 @@ class SessionServiceImpl implements SessionService {
                                              .collect(Collectors.toSet());
 
     removingIds.forEach(sessionCacheMap::remove);
-    removingIds.forEach(sessionLastValidatedMillis_map::remove);
     removingIds.forEach(id -> removedSessionIds.put(id, id));
   }
 
   @Override
-  public void syncCache() {
-
-    Set<String> removingIds = new HashSet<>();
-
-    for (Map.Entry<String, SessionCache> e : sessionCacheMap.entrySet()) {
-      SessionRow sessionRow = builder.storage.loadSession(e.getKey());
-      if (sessionRow == null) {
-        removingIds.add(e.getKey());
-        continue;
-      }
-
-      if (sessionRow.lastTouchedAt == null || sessionRow.lastTouchedAt.before(e.getValue().lastTouchedAt.get())) {
-
-        builder.storage.setLastTouchedAt(e.getKey(), e.getValue().lastTouchedAt.get());
-
-      } else {
-
-        e.getValue().lastTouchedAt.set(sessionRow.lastTouchedAt);
-
-      }
-    }
-
-    removingIds.forEach(sessionCacheMap::remove);
-    removingIds.forEach(sessionLastValidatedMillis_map::remove);
-    removingIds.forEach(id -> removedSessionIds.put(id, id));
+  public void idle() {
+    throw new RuntimeException("22.02.2022 15:43: Not impl yet: SessionServiceImpl.idle");
   }
 
 }

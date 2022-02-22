@@ -1,0 +1,29 @@
+plugins {
+  id "kz.greetgo.upload-to-maven"
+  id "kz.greetgo.upload-to-gg-repo"
+}
+
+dependencies {
+
+  implementation project(":greetgo-security-core")
+
+  compileOnly "com.github.ben-manes.caffeine:caffeine:$caffeineVersion"
+  testCompile "com.github.ben-manes.caffeine:caffeine:$caffeineVersion"
+
+}
+
+install.group = "upload"
+
+uploadToMavenCentral {
+  description = 'Security infrastructure used in greetgo!: cache realization by caffeine'
+  url = 'https://github.com/greetgo/greetgo-security'
+  scm {
+    url = 'https://github.com/greetgo/greetgo-security.git'
+  }
+  developer {
+    id = 'pompei'
+    //noinspection SpellCheckingInspection
+    name = 'Evgenij Kolpakov'
+    email = 'ekolpakov@greet-go.kz'
+  }
+}

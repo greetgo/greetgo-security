@@ -14,9 +14,13 @@ public class SessionId {
   }
 
   public static SessionId parse(String sessionId) {
-    if (sessionId == null) return null;
+    if (sessionId == null) {
+      return null;
+    }
     int i = sessionId.indexOf("-");
-    if (i < 0) return null;
+    if (i < 0) {
+      return null;
+    }
     return new SessionId(sessionId.substring(0, i), sessionId.substring(i + 1));
   }
 }
