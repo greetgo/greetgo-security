@@ -35,6 +35,7 @@ subprojects {
     ext.caffeineVersion = "2.8.5"
     ext.argon2Version = "2.11"
     ext.caffeineVersion = "3.0.5"
+    ext.greetgoUtilVersion = "2.0.0"
 
     ext.greetgoDbVersion = '2.3.7'
     ext.mongoDriverVersion = '3.12.10'

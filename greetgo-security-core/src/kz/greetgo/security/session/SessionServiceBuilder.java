@@ -11,6 +11,8 @@ public class SessionServiceBuilder {
   SessionStorage storage;
   SaltGenerator  saltGenerator;
 
+  SessionCache sessionCache = new NoSessionCache();
+
   int sessionIdLength = 15;
   int tokenLength     = 15;
 

@@ -44,7 +44,16 @@ class SessionServiceImpl implements SessionService {
   }
 
   private Optional<SessionRow> getSession(String sessionId) {
+    return builder.sessionCache.get(sessionId, () -> loadSession(sessionId))
+                               .map(sessionRow -> touchSession(sessionId, sessionRow));
+  }
 
+  private SessionRow touchSession(String sessionId, SessionRow x) {
+    pendingTouch.touch(sessionId);
+    return x;
+  }
+
+  private Optional<SessionRow> loadSession(String sessionId) {
     try {
 
       SessionRow sessionRow = builder.storage.loadSession(sessionId);
@@ -53,27 +62,22 @@ class SessionServiceImpl implements SessionService {
       }
 
       if (isInvalidSession(sessionId, sessionRow.sessionData, sessionRow.token)) {
+        removeSession(sessionId);
         return Optional.empty();
       }
 
-      pendingTouch.touch(sessionId);
-
       return Optional.of(sessionRow);
-
     } catch (SerializedClassChanged e) {
-
       return Optional.empty();
-
     }
-
   }
 
   private boolean isInvalidSession(String sessionId, Object sessionData, String token) {
-    return !isSessionValid(sessionId, sessionData, token);
+    return !isValidSession(sessionId, sessionData, token);
   }
 
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  private boolean isSessionValid(String sessionId, Object sessionData, String token) {
+  private boolean isValidSession(String sessionId, Object sessionData, String token) {
     SessionValidator<Object> sessionValidator = builder.sessionValidator;
     if (sessionValidator == null) {
       return true;
@@ -131,6 +135,7 @@ class SessionServiceImpl implements SessionService {
       return;
     }
     builder.storage.remove(sessionId);
+    builder.sessionCache.invalidate(sessionId);
   }
 
 
@@ -148,4 +153,8 @@ class SessionServiceImpl implements SessionService {
     pendingTouch.idle();
   }
 
+  @Override
+  public void close() {
+    pendingTouch.close();
+  }
 }

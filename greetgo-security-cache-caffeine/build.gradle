@@ -7,8 +7,9 @@ dependencies {
 
   implementation project(":greetgo-security-core")
 
-  compileOnly "com.github.ben-manes.caffeine:caffeine:$caffeineVersion"
-  testCompile "com.github.ben-manes.caffeine:caffeine:$caffeineVersion"
+  implementation "com.github.ben-manes.caffeine:caffeine:$caffeineVersion"
+
+  testCompile "kz.greetgo:greetgo.util:$greetgoUtilVersion"
 
 }
 

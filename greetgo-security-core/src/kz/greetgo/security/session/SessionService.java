@@ -6,7 +6,7 @@ import java.util.Optional;
 /**
  * Generates, caches, stores, give access and removes sessions
  */
-public interface SessionService {
+public interface SessionService extends AutoCloseable {
 
   /**
    * Creates new session in storage with specified sessionData
@@ -68,4 +68,9 @@ public interface SessionService {
    */
   void idle();
 
+  /**
+   * Закрывает различные ресурсы
+   */
+  @Override
+  void close();
 }

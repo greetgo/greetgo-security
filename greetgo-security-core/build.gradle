@@ -17,7 +17,7 @@ dependencies {
   testCompile "de.mkammerer:argon2-jvm:$argon2Version"
 
   testCompile 'kz.greetgo.conf:greetgo.sys_params:2.0.0'
-  testCompile "kz.greetgo:greetgo.util:2.0.0"
+  testCompile "kz.greetgo:greetgo.util:$greetgoUtilVersion"
 
   //jdbc drivers
   //noinspection SpellCheckingInspection
