@@ -9,11 +9,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Map;
 
 import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
 import static kz.greetgo.security.SecurityBuilders.newSessionServiceBuilder;
@@ -29,29 +29,23 @@ public class SessionServiceTest {
   SessionServiceImpl impl2;
   final SaltGenerator saltGenerator = str -> "S" + str.substring(0, 5) + "S";
 
-  private static final int OLD_SESSION_AGE_IN_HOURS = 7;
-
   @BeforeMethod
   public void createSessionService() {
     sessionStorage = new TestSessionStorage();
 
-    sessionService = newSessionServiceBuilder()
-      .setOldSessionAgeInHours(OLD_SESSION_AGE_IN_HOURS)
-      .setSessionIdLength(17)
-      .setTokenLength(17)
-      .setStorage(sessionStorage)
-      .setSaltGenerator(saltGenerator)
-      .build();
+    sessionService = newSessionServiceBuilder().setSessionIdLength(17)
+                                               .setTokenLength(17)
+                                               .setStorage(sessionStorage)
+                                               .setSaltGenerator(saltGenerator)
+                                               .build();
 
     impl = (SessionServiceImpl) sessionService;
 
-    sessionService2 = newSessionServiceBuilder()
-      .setOldSessionAgeInHours(OLD_SESSION_AGE_IN_HOURS)
-      .setSessionIdLength(17)
-      .setTokenLength(17)
-      .setStorage(sessionStorage)
-      .setSaltGenerator(saltGenerator)
-      .build();
+    sessionService2 = newSessionServiceBuilder().setSessionIdLength(17)
+                                                .setTokenLength(17)
+                                                .setStorage(sessionStorage)
+                                                .setSaltGenerator(saltGenerator)
+                                                .build();
 
     impl2 = (SessionServiceImpl) sessionService2;
   }
@@ -92,44 +86,8 @@ public class SessionServiceTest {
 
     assertThat(actual).isEqualTo(sessionData);
 
-    assertThat(impl.sessionCacheMap).containsKey(identity.id);
-
   }
 
-  @Test
-  public void getSessionData__checkCache() {
-
-    sessionStorage.clean();
-
-    String          sessionData = "SESSION DATA " + RND.str(10);
-    SessionIdentity identity    = sessionService.createSession(sessionData);
-
-    assertThat(impl2.sessionCacheMap).doesNotContainKey(identity.id);
-
-    //
-    //
-    Object actual = sessionService2.getSessionData(identity.id);
-    //
-    //
-
-    assertThat(actual).isEqualTo(sessionData);
-
-    assertThat(impl.sessionCacheMap).containsKey(identity.id);
-    assertThat(impl2.sessionCacheMap).containsKey(identity.id);
-
-    assertThat(sessionStorage.calls).hasSize(2);
-
-    //
-    //
-    Object actual2 = sessionService2.getSessionData(identity.id);
-    //
-    //
-
-    assertThat(actual2).isEqualTo(sessionData);
-    System.out.println("kLF3f5x5uy :: sessionStorage.calls = " + sessionStorage.calls);
-    assertThat(sessionStorage.calls).hasSize(2);
-
-  }
 
   @Test
   public void getSessionData_fromStorage() {
@@ -137,8 +95,6 @@ public class SessionServiceTest {
 
     String          sessionData = "SESSION DATA " + RND.str(10);
     SessionIdentity identity    = sessionService.createSession(sessionData);
-
-    impl.sessionCacheMap.clear();
 
     //
     //
@@ -157,8 +113,6 @@ public class SessionServiceTest {
 
     SessionIdentity identity = sessionService.createSession(sessionData);
 
-    impl.removedSessionIds.put(identity.id, identity.id);
-
     //
     //
     Object actual = sessionService.getSessionData(identity.id);
@@ -172,8 +126,6 @@ public class SessionServiceTest {
   public void getSessionData_fromCache() {
     String          sessionData = "SESSION DATA " + RND.str(10);
     SessionIdentity identity    = sessionService.createSession(sessionData);
-
-    impl.sessionCacheMap.clear();
 
     sessionService.getSessionData(identity.id);
 
@@ -203,7 +155,6 @@ public class SessionServiceTest {
     assertThat(actual).isNull();
 
     assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
-    assertThat(impl.sessionCacheMap).isEmpty();
   }
 
   @Test(invocationCount = 10)
@@ -270,16 +221,9 @@ public class SessionServiceTest {
   }
 
   @Test
-  public void statisticsInfo() {
-    Map<String, String> statisticsInfo = sessionService.statisticsInfo();
-    assertThat(statisticsInfo).isNotNull();
-  }
-
-  @Test
   public void verifyToken() {
     SessionIdentity identity = sessionService.createSession(null);
 
-    impl.sessionCacheMap.clear();
     sessionStorage.loadSessionCount = 0;
 
     //
@@ -290,15 +234,12 @@ public class SessionServiceTest {
 
     assertThat(verificationResult).isTrue();
     assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
-
-    assertThat(impl.sessionCacheMap).containsKey(identity.id);
   }
 
   @Test
   public void verifyToken_fromCache() {
     SessionIdentity identity = sessionService.createSession(null);
 
-    assertThat(impl.sessionCacheMap).containsKey(identity.id);
     sessionStorage.loadSessionCount = 0;
 
     //
@@ -309,16 +250,12 @@ public class SessionServiceTest {
 
     assertThat(verificationResult).isTrue();
     assertThat(sessionStorage.loadSessionCount).isZero();
-
-    assertThat(impl.sessionCacheMap).containsKey(identity.id);
   }
 
   @Test
   public void verifyToken_noSession() {
     SessionIdentity identity = sessionService.createSession(null);
 
-    assertThat(impl.sessionCacheMap).containsKey(identity.id);
-    impl.sessionCacheMap.clear();
     sessionStorage.loadSessionCount = 0;
 
     sessionStorage.sessionMap.clear();
@@ -331,8 +268,6 @@ public class SessionServiceTest {
 
     assertThat(verificationResult).isFalse();
     assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
-
-    assertThat(impl.sessionCacheMap).doesNotContainKey(identity.id);
   }
 
   @Test
@@ -340,7 +275,6 @@ public class SessionServiceTest {
     SessionIdentity identity1 = sessionService.createSession(null);
     SessionIdentity identity2 = sessionService.createSession(null);
 
-    impl.sessionCacheMap.clear();
     sessionStorage.loadSessionCount = 0;
 
     //
@@ -351,16 +285,12 @@ public class SessionServiceTest {
 
     assertThat(verificationResult).isFalse();
     assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
-
-    assertThat(impl.sessionCacheMap).containsKey(identity1.id);
-    assertThat(impl.sessionCacheMap).doesNotContainKey(identity2.id);
   }
 
   @Test
   public void verifyToken_leftToken_noCache() {
     SessionIdentity identity = sessionService.createSession(null);
 
-    impl.sessionCacheMap.clear();
     sessionStorage.loadSessionCount = 0;
 
     //
@@ -371,15 +301,12 @@ public class SessionServiceTest {
 
     assertThat(verificationResult).isFalse();
     assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
-
-    assertThat(impl.sessionCacheMap).containsKey(identity.id);
   }
 
   @Test
   public void verifyToken_leftToken() {
     SessionIdentity identity = sessionService.createSession(null);
 
-    assertThat(impl.sessionCacheMap).containsKey(identity.id);
     sessionStorage.loadSessionCount = 0;
 
     //
@@ -390,8 +317,6 @@ public class SessionServiceTest {
 
     assertThat(verificationResult).isFalse();
     assertThat(sessionStorage.loadSessionCount).isZero();
-
-    assertThat(impl.sessionCacheMap).containsKey(identity.id);
   }
 
   public static Date nowAddHours(int hours) {
@@ -405,7 +330,6 @@ public class SessionServiceTest {
     SessionIdentity identity = sessionService.createSession(null);
 
     assertThat(sessionStorage.sessionMap).containsKey(identity.id);
-    assertThat(impl.sessionCacheMap).containsKey(identity.id);
 
     //
     //
@@ -414,8 +338,6 @@ public class SessionServiceTest {
     //
 
     assertThat(sessionStorage.sessionMap).doesNotContainKey(identity.id);
-    assertThat(impl.sessionCacheMap).doesNotContainKey(identity.id);
-    assertThat(impl.removedSessionIds).containsKey(identity.id);
   }
 
   @Test
@@ -428,7 +350,7 @@ public class SessionServiceTest {
     //
     //
 
-    assertThat(impl.removedSessionIds).doesNotContainKey(sessionId);
+    assertThat(1).isEqualTo(2);
   }
 
   @Test
@@ -436,7 +358,6 @@ public class SessionServiceTest {
     SessionIdentity identity = sessionService.createSession(null);
 
     sessionStorage.sessionMap.remove(identity.id);
-    impl.sessionCacheMap.remove(identity.id);
 
     //
     //
@@ -444,17 +365,11 @@ public class SessionServiceTest {
     //
     //
 
-    assertThat(impl.removedSessionIds).containsKey(identity.id);
+    assertThat(1).isEqualTo(2);
   }
 
   private void setLastTouchedByInDb(String sessionId, Date value) {
     sessionStorage.sessionMap.get(sessionId).lastTouchedAt = value;
-    {
-      SessionServiceImpl.SessionCache cache = impl.sessionCacheMap.get(sessionId);
-      if (cache != null) {
-        cache.lastTouchedAt.set(value);
-      }
-    }
   }
 
   @Test
@@ -462,42 +377,36 @@ public class SessionServiceTest {
     String youngId = sessionService.createSession(null).id;
     String oldId   = sessionService.createSession(null).id;
 
-    setLastTouchedByInDb(youngId, nowAddHours(-OLD_SESSION_AGE_IN_HOURS + 1));
-    setLastTouchedByInDb(oldId, nowAddHours(-OLD_SESSION_AGE_IN_HOURS - 1));
+    setLastTouchedByInDb(youngId, nowAddHours(-7 + 1));
+    setLastTouchedByInDb(oldId, nowAddHours(-7 - 1));
 
     //
     //
-    sessionService.removeOldSessions(OLD_SESSION_AGE_IN_HOURS);
+    sessionService.removeOldSessions(7);
     //
     //
 
     assertThat(sessionStorage.sessionMap).containsKey(youngId);
-    assertThat(impl.sessionCacheMap).containsKey(youngId);
-    assertThat(impl.removedSessionIds).doesNotContainKey(youngId);
 
     assertThat(sessionStorage.sessionMap).doesNotContainKey(oldId);
-    assertThat(impl.sessionCacheMap).doesNotContainKey(oldId);
-    assertThat(impl.removedSessionIds).containsKey(oldId);
   }
 
   @Test
   public void saltGeneratorFromCrypto() {
-    String dir = "build/test_data/saltGeneratorFromCrypto/";
+    Path dir = Paths.get("build/test_data/saltGeneratorFromCrypto");
 
-    Crypto crypto = newCryptoBuilder()
-      .inFiles(new File(dir + "pri.key"), new File(dir + "pub.key"))
-      .build();
+    Crypto crypto = newCryptoBuilder().inFiles(dir.resolve("pri.key").toFile(), dir.resolve("pub.key").toFile())
+                                      .build();
 
-    SessionService sessionService = newSessionServiceBuilder()
-      .setOldSessionAgeInHours(OLD_SESSION_AGE_IN_HOURS)
-      .setSessionIdLength(17)
-      .setTokenLength(17)
-      .setStorage(sessionStorage)
-      .setSaltGeneratorOnCrypto(crypto, 17, RND.byteArray(100))
-      .build();
+    SessionService sessionService = newSessionServiceBuilder().setSessionIdLength(17)
+                                                              .setTokenLength(17)
+                                                              .setStorage(sessionStorage)
+                                                              .setSaltGeneratorOnCrypto(crypto, 17, RND.byteArray(100))
+                                                              .build();
 
     SessionIdentity identity = sessionService.createSession(null);
 //    System.out.println(identity);
     assertThat(identity).isNotNull();
   }
+
 }

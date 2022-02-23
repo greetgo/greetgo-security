@@ -268,55 +268,6 @@ public class SessionStorageTest {
     assertThat(lastTouchedAt).isNotNull();
   }
 
-  @Test(dataProvider = "dbTypeDataProvider")
-  public void zeroSessionAge(DbType dbType) {
-    jdbcFactory.dbType = dbType;
-    Jdbc jdbc = jdbcFactory.create();
-
-    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-                                                    .setJdbc(dbType, jdbc)
-                                                    .build();
-
-    SessionIdentity identity = new SessionIdentity(RND.intStr(15), null);
-
-    sessionStorage.insertSession(identity, null);
-
-    setDateFieldInAllTable(jdbc, "last_touched_at", nowAddHours(jdbc, -5));
-
-    //
-    //
-    boolean updated = sessionStorage.zeroSessionAge(identity.id);
-    //
-    //
-
-    assertThat(updated).isTrue();
-
-    Date actual = jdbc.execute(new SelectDateField("last_touched_at", "session_storage", identity.id));
-    assertThat(actual).isAfter(nowAddHours(jdbc, -1));
-  }
-
-  @Test(dataProvider = "sessionStorageDataProvider")
-  public void zeroSessionAge_all(SessionStorage sessionStorage) {
-
-    SessionIdentity identity = new SessionIdentity(RND.intStr(15), null);
-
-    sessionStorage.insertSession(identity, null);
-
-    sessionStorage.setLastTouchedAt(identity.id, nowAddHours(-5));
-
-    //
-    //
-    boolean updated = sessionStorage.zeroSessionAge(identity.id);
-    //
-    //
-
-    assertThat(updated).isTrue();
-
-    Date actual = sessionStorage.loadLastTouchedAt(identity.id);
-
-    assertThat(actual).isAfter(nowAddHours(-1));
-  }
-
   private SessionIdentity insertSession(SessionStorage sessionStorage) {
     return insertSession(sessionStorage, null);
   }
@@ -325,18 +276,6 @@ public class SessionStorageTest {
     SessionIdentity identity = new SessionIdentity(RND.intStr(15), null);
     sessionStorage.insertSession(identity, sessionData);
     return identity;
-  }
-
-  @Test(dataProvider = "sessionStorageDataProvider")
-  public void zeroSessionAge_leftSessionId(SessionStorage sessionStorage) {
-
-    //
-    //
-    boolean updated = sessionStorage.zeroSessionAge(RND.str(10));
-    //
-    //
-
-    assertThat(updated).isFalse();
   }
 
   @Test(dataProvider = "sessionStorageDataProvider")

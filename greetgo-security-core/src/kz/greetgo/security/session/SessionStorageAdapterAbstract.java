@@ -63,13 +63,6 @@ public abstract class SessionStorageAdapterAbstract implements SessionStorage {
     names.jdbc.execute(new Update(sql, sqlParams));
   }
 
-  @Override
-  public boolean zeroSessionAge(String sessionId) {
-    List<Object> sqlParams = new ArrayList<>();
-    String       sql       = zeroSessionAgeSql(sqlParams, sessionId);
-    return names.jdbc.execute(new Update(sql, sqlParams)) > 0;
-  }
-
   protected abstract String zeroSessionAgeSql(List<Object> sqlParams, String sessionId);
 
   @Override

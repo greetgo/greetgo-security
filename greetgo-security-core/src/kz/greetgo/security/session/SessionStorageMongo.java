@@ -123,22 +123,6 @@ class SessionStorageMongo implements SessionStorage {
   }
 
   @Override
-  public boolean zeroSessionAge(String sessionId) {
-
-    ensureIndexId();
-
-    Document values = new Document();
-    values.append(names.lastModifiedAt, new Date());
-
-    Document update = new Document();
-    update.append("$set", values);
-
-    return collection
-      .updateOne(filterById(sessionId), update)
-      .getMatchedCount() > 0;
-  }
-
-  @Override
   public int removeSessionsOlderThan(int ageInHours) {
     ensureIndexId();
 

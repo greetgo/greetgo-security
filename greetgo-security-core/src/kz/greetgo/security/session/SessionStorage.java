@@ -32,16 +32,6 @@ public interface SessionStorage {
   Date loadLastTouchedAt(String sessionId);
 
   /**
-   * Makes session young
-   *
-   * @param sessionId session id
-   * @return indicates session exists:
-   * <code>true</code> - session exists and its age made zero,
-   * <code>false</code> - session is absent
-   */
-  boolean zeroSessionAge(String sessionId);
-
-  /**
    * Removes all session which age is more then ageInHours
    *
    * @param ageInHours session age in hours

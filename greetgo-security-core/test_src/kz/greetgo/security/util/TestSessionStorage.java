@@ -54,16 +54,6 @@ public class TestSessionStorage implements SessionStorage {
     return dot.lastTouchedAt;
   }
 
-
-  @Override
-  public boolean zeroSessionAge(String sessionId) {
-    calls.add("zeroSessionAge " + sessionId);
-    SessionDot dot = sessionMap.get(sessionId);
-    if (dot == null) return false;
-    dot.lastTouchedAt = new Date();
-    return true;
-  }
-
   @Override
   public boolean setLastTouchedAt(String sessionId, Date value) {
     calls.add("setLastTouchedAt " + sessionId + ", " + value);

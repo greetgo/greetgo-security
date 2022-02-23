@@ -2,8 +2,8 @@ package kz.greetgo.security.session;
 
 import kz.greetgo.security.crypto.Crypto;
 
-import java.util.function.IntSupplier;
-import java.util.function.LongSupplier;
+import java.util.Date;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -11,17 +11,14 @@ public class SessionServiceBuilder {
   SessionStorage storage;
   SaltGenerator  saltGenerator;
 
-  int oldSessionAgeInHours = 24;
-  int sessionIdLength      = 15;
-  int tokenLength          = 15;
-
-  LongSupplier lastTouchedCacheTimeoutSec = () -> 30;
-  IntSupplier  lastTouchedCacheSize       = () -> 1_000_000;
-  LongSupplier validateSessionDelayMillis = () -> 10_000;//10 seconds
+  int sessionIdLength = 15;
+  int tokenLength     = 15;
 
   SessionValidator<Object> sessionValidator = null;
 
   SessionLog sessionLog = Throwable::printStackTrace;
+
+  Supplier<Date> nowSupplier = Date::new;
 
   private SessionServiceBuilder() {}
 
@@ -39,13 +36,6 @@ public class SessionServiceBuilder {
   public SessionServiceBuilder sessionLog(SessionLog sessionLog) {
     checkBuilt();
     this.sessionLog = requireNonNull(sessionLog, "CMNjR6SkFq :: sessionLog");
-    return this;
-  }
-
-  public SessionServiceBuilder setValidateSessionDelayMillis(LongSupplier validateSessionDelayMillis) {
-    checkBuilt();
-    this.validateSessionDelayMillis = requireNonNull(validateSessionDelayMillis,
-                                                     "mj2y4oz57T :: validateSessionDelayMillis");
     return this;
   }
 
@@ -69,15 +59,15 @@ public class SessionServiceBuilder {
     return this;
   }
 
-  public SessionServiceBuilder setSaltGeneratorOnCrypto(Crypto crypto, int saltLength, byte[] saltMixture) {
+  public SessionServiceBuilder setNowSupplier(Supplier<Date> nowSupplier) {
     checkBuilt();
-    this.saltGenerator = new SaltGeneratorCryptoBridge(crypto, saltLength, saltMixture);
+    this.nowSupplier = nowSupplier;
     return this;
   }
 
-  public SessionServiceBuilder setOldSessionAgeInHours(int oldSessionAgeInHours) {
+  public SessionServiceBuilder setSaltGeneratorOnCrypto(Crypto crypto, int saltLength, byte[] saltMixture) {
     checkBuilt();
-    this.oldSessionAgeInHours = oldSessionAgeInHours;
+    this.saltGenerator = new SaltGeneratorCryptoBridge(crypto, saltLength, saltMixture);
     return this;
   }
 
@@ -93,28 +83,6 @@ public class SessionServiceBuilder {
     return this;
   }
 
-  public SessionServiceBuilder setLastTouchedCacheTimeoutSec(LongSupplier lastTouchedCacheTimeoutSec) {
-    checkBuilt();
-    this.lastTouchedCacheTimeoutSec = requireNonNull(lastTouchedCacheTimeoutSec);
-    return this;
-  }
-
-  public SessionServiceBuilder setLastTouchedCacheTimeoutSec(long dbCacheTimeoutSec) {
-    checkBuilt();
-    return setLastTouchedCacheTimeoutSec(() -> dbCacheTimeoutSec);
-  }
-
-  public SessionServiceBuilder setLastTouchedCacheSize(IntSupplier lastTouchedCacheSize) {
-    checkBuilt();
-    this.lastTouchedCacheSize = requireNonNull(lastTouchedCacheSize);
-    return this;
-  }
-
-  public SessionServiceBuilder setLastTouchedCacheSize(int lastTouchedCacheSize) {
-    checkBuilt();
-    return setLastTouchedCacheSize(() -> lastTouchedCacheSize);
-  }
-
   public SessionService build() {
     built = true;
     if (storage == null) {
@@ -125,4 +93,5 @@ public class SessionServiceBuilder {
     }
     return new SessionServiceImpl(this);
   }
+
 }

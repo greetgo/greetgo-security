@@ -64,13 +64,6 @@ public interface SessionService {
   void removeOldSessions(int hoursOld);
 
   /**
-   * Retrieves statistics information
-   *
-   * @return statistics information in map
-   */
-  Map<String, String> statisticsInfo();
-
-  /**
    * This method must be called every 5 seconds to do pending operations
    */
   void idle();
