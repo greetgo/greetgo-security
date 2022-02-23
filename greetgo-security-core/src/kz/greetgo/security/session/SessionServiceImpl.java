@@ -1,6 +1,7 @@
 package kz.greetgo.security.session;
 
 import kz.greetgo.security.errors.SerializedClassChanged;
+import kz.greetgo.security.session.touch.PendingTouch;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -9,9 +10,13 @@ import java.util.Optional;
 
 class SessionServiceImpl implements SessionService {
   private final SessionServiceBuilder builder;
+  private final PendingTouch          pendingTouch;
 
   public SessionServiceImpl(SessionServiceBuilder builder) {
     this.builder = builder;
+    pendingTouch = new PendingTouch(() -> builder.nowSupplier.get(),
+                                    () -> builder.delayTouchSyncMs,
+                                    (id, date) -> builder.storage.setLastTouchedAt(id, date));
   }
 
   @Override
@@ -50,6 +55,8 @@ class SessionServiceImpl implements SessionService {
       if (isInvalidSession(sessionId, sessionRow.sessionData, sessionRow.token)) {
         return Optional.empty();
       }
+
+      pendingTouch.touch(sessionId);
 
       return Optional.of(sessionRow);
 
@@ -138,7 +145,7 @@ class SessionServiceImpl implements SessionService {
 
   @Override
   public void idle() {
-    throw new RuntimeException("22.02.2022 15:43: Not impl yet: SessionServiceImpl.idle");
+    pendingTouch.idle();
   }
 
 }

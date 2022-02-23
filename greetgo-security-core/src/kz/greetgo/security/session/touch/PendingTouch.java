@@ -13,7 +13,7 @@ public class PendingTouch implements AutoCloseable {
   private final Supplier<Date> nowSupplier;
   private final Supplier<Long> delayMsSupplier;
 
-  public PendingTouch(TouchHandler touchHandler, Supplier<Date> nowSupplier, Supplier<Long> delayMsSupplier) {
+  public PendingTouch(Supplier<Date> nowSupplier, Supplier<Long> delayMsSupplier, TouchHandler touchHandler) {
     this.touchHandler    = touchHandler;
     this.nowSupplier     = nowSupplier;
     this.delayMsSupplier = delayMsSupplier;

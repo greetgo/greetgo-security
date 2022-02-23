@@ -19,7 +19,7 @@ public class PendingTouchTest {
     TestTouchHandler touchHandler = new TestTouchHandler();
     Calendar         time         = new GregorianCalendar();
 
-    PendingTouch pendingTouch = new PendingTouch(touchHandler, time::getTime, () -> 100_000L);
+    PendingTouch pendingTouch = new PendingTouch(time::getTime, () -> 100_000L, touchHandler);
 
     time.setTime(sdf.parse("2020-01-01 11:00:12"));
     pendingTouch.touch("s1");
@@ -48,7 +48,7 @@ public class PendingTouchTest {
     TestTouchHandler touchHandler = new TestTouchHandler();
     Calendar         time         = new GregorianCalendar();
 
-    PendingTouch pendingTouch = new PendingTouch(touchHandler, time::getTime, () -> 10_000L);
+    PendingTouch pendingTouch = new PendingTouch(time::getTime, () -> 10_000L, touchHandler);
 
     time.setTime(sdf.parse("2020-01-01 11:00:10"));
     pendingTouch.touch("s1");
@@ -75,7 +75,7 @@ public class PendingTouchTest {
     TestTouchHandler touchHandler = new TestTouchHandler();
     Calendar         time         = new GregorianCalendar();
 
-    PendingTouch pendingTouch = new PendingTouch(touchHandler, time::getTime, () -> 10_000L);
+    PendingTouch pendingTouch = new PendingTouch(time::getTime, () -> 10_000L, touchHandler);
 
     time.setTime(sdf.parse("2020-01-01 11:00:10"));
     pendingTouch.touch("s1");

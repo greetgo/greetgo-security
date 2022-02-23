@@ -14,6 +14,8 @@ public class SessionServiceBuilder {
   int sessionIdLength = 15;
   int tokenLength     = 15;
 
+  long delayTouchSyncMs = 4700;
+
   SessionValidator<Object> sessionValidator = null;
 
   SessionLog sessionLog = Throwable::printStackTrace;
@@ -36,6 +38,11 @@ public class SessionServiceBuilder {
   public SessionServiceBuilder sessionLog(SessionLog sessionLog) {
     checkBuilt();
     this.sessionLog = requireNonNull(sessionLog, "CMNjR6SkFq :: sessionLog");
+    return this;
+  }
+
+  public SessionServiceBuilder setDelayTouchSyncMs(long delayTouchSyncMs) {
+    this.delayTouchSyncMs = delayTouchSyncMs;
     return this;
   }
 
