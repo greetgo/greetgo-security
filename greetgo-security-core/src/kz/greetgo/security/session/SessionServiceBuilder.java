@@ -49,6 +49,11 @@ public class SessionServiceBuilder {
     return this;
   }
 
+  public SessionServiceBuilder setSessionCache(SessionCache sessionCache) {
+    this.sessionCache = sessionCache;
+    return this;
+  }
+
   public SessionServiceBuilder setStorage(SessionStorage storage) {
     checkBuilt();
     this.storage = storage;
