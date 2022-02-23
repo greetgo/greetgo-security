@@ -15,8 +15,8 @@ public class SessionCacheCaffeineTest {
   public void caching() {
 
     SessionCacheCaffeine cache = SessionCacheCaffeine.builder()
-                                                     .maximumSize(10_000)
-                                                     .lifeTimeMillis(800)
+                                                     .maximumSize(() -> 10_000)
+                                                     .lifeTimeMillis(() -> 800)
                                                      .build();
 
     SessionRow row1 = new SessionRow(RND.str(10), "WOW1", new Date(), new Date());

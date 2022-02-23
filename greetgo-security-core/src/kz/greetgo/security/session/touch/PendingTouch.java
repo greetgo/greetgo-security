@@ -5,15 +5,16 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 public class PendingTouch implements AutoCloseable {
 
   private final TouchHandler   touchHandler;
   private final Supplier<Date> nowSupplier;
-  private final Supplier<Long> delayMsSupplier;
+  private final LongSupplier delayMsSupplier;
 
-  public PendingTouch(Supplier<Date> nowSupplier, Supplier<Long> delayMsSupplier, TouchHandler touchHandler) {
+  public PendingTouch(Supplier<Date> nowSupplier, LongSupplier delayMsSupplier, TouchHandler touchHandler) {
     this.touchHandler    = touchHandler;
     this.nowSupplier     = nowSupplier;
     this.delayMsSupplier = delayMsSupplier;
@@ -46,7 +47,7 @@ public class PendingTouch implements AutoCloseable {
 
   public void idle() {
 
-    Date border = new Date(nowSupplier.get().getTime() - delayMsSupplier.get());
+    Date border = new Date(nowSupplier.get().getTime() - delayMsSupplier.getAsLong());
 
     while (true) {
 

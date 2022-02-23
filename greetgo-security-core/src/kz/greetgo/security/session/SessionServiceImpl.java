@@ -15,7 +15,7 @@ class SessionServiceImpl implements SessionService {
   public SessionServiceImpl(SessionServiceBuilder builder) {
     this.builder = builder;
     pendingTouch = new PendingTouch(() -> builder.nowSupplier.get(),
-                                    () -> builder.delayTouchSyncMs,
+                                    () -> builder.delayTouchSyncMs.getAsLong(),
                                     (id, date) -> builder.storage.setLastTouchedAt(id, date));
   }
 

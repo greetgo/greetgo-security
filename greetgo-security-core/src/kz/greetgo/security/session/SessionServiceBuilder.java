@@ -3,6 +3,7 @@ package kz.greetgo.security.session;
 import kz.greetgo.security.crypto.Crypto;
 
 import java.util.Date;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
@@ -16,7 +17,7 @@ public class SessionServiceBuilder {
   int sessionIdLength = 15;
   int tokenLength     = 15;
 
-  long delayTouchSyncMs = 4700;
+  LongSupplier delayTouchSyncMs = () -> 4700;
 
   SessionValidator<Object> sessionValidator = null;
 
@@ -43,7 +44,7 @@ public class SessionServiceBuilder {
     return this;
   }
 
-  public SessionServiceBuilder setDelayTouchSyncMs(long delayTouchSyncMs) {
+  public SessionServiceBuilder setDelayTouchSyncMs(LongSupplier delayTouchSyncMs) {
     this.delayTouchSyncMs = delayTouchSyncMs;
     return this;
   }
