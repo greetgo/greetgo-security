@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-public class PendingTouch {
+public class PendingTouch implements AutoCloseable {
 
   private final TouchHandler   touchHandler;
   private final Supplier<Date> nowSupplier;
@@ -66,4 +66,22 @@ public class PendingTouch {
     }
   }
 
+  @Override
+  public void close()  {
+    while (true) {
+
+      Map.Entry<String, Date2> e = pendingMap.entrySet()
+                                             .stream()
+                                             .findAny()
+                                             .orElse(null);
+
+      if (e == null) {
+        return;
+      }
+
+      pendingMap.remove(e.getKey());
+
+      touchHandler.updateLastModifiedAt(e.getKey(), e.getValue().lastTouchedAt.get());
+    }
+  }
 }

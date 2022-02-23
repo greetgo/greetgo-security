@@ -34,6 +34,10 @@ public class PendingTouchTest {
     pendingTouch.idle();
 
     assertThat(touchHandler.updatedSessions).isEmpty();
+
+    pendingTouch.close();
+
+    assertThat(touchHandler.updatedSessions).containsEntry("s1", sdf.parse("2020-01-01 11:00:15"));
   }
 
   @Test
