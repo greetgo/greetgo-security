@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
 import static kz.greetgo.security.SecurityBuilders.newSessionServiceBuilder;
@@ -27,7 +28,18 @@ public class SessionServiceTest {
   SessionService     sessionService2;
   SessionServiceImpl impl;
   SessionServiceImpl impl2;
-  final SaltGenerator saltGenerator = str -> "S" + str.substring(0, 5) + "S";
+
+  final SaltGenerator saltGenerator = new SaltGenerator() {
+    @Override
+    public String generateSalt(String str) {
+      return "S" + str.substring(0, 5) + "S";
+    }
+
+    @Override
+    public boolean validateSalt(String str, String salt) {
+      return Objects.equals(salt, generateSalt(str));
+    }
+  };
 
   @BeforeMethod
   public void createSessionService() {
@@ -37,6 +49,11 @@ public class SessionServiceTest {
                                                .setTokenLength(17)
                                                .setStorage(sessionStorage)
                                                .setSaltGenerator(saltGenerator)
+                                               .sessionValidator((sessionId, sessionData, token) -> {})
+                                               .sessionLog(Throwable::printStackTrace)
+                                               .setDelayTouchSyncMs(() -> 4700)
+                                               .setSessionCache(new NoSessionCache())
+                                               .setNowSupplier(Date::new)
                                                .build();
 
     impl = (SessionServiceImpl) sessionService;
@@ -363,7 +380,7 @@ public class SessionServiceTest {
     SessionService sessionService = newSessionServiceBuilder().setSessionIdLength(17)
                                                               .setTokenLength(17)
                                                               .setStorage(sessionStorage)
-                                                              .setSaltGeneratorOnCrypto(crypto, 17, RND.byteArray(100))
+                                                              .setSaltGeneratorOnCrypto(crypto)
                                                               .build();
 
     SessionIdentity identity = sessionService.createSession(null);

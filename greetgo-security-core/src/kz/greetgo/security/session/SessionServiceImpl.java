@@ -5,7 +5,6 @@ import kz.greetgo.security.session.touch.PendingTouch;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Objects;
 import java.util.Optional;
 
 class SessionServiceImpl implements SessionService {
@@ -111,10 +110,7 @@ class SessionServiceImpl implements SessionService {
       return false;
     }
 
-    String saltExpected = builder.saltGenerator.generateSalt(s.part);
-
-    return Objects.equals(saltExpected, s.salt);
-
+    return builder.saltGenerator.validateSalt(s.part, s.salt);
   }
 
   @Override

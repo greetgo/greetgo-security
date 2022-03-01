@@ -8,9 +8,9 @@ public class ByteUtil {
     if (bytes2 == null) {
       bytes2 = new byte[0];
     }
-    int minSize = Math.min(bytes1.length, bytes2.length);
-    int maxSize = Math.max(bytes1.length, bytes2.length);
-    byte[] result = new byte[maxSize];
+    int    minSize = Math.min(bytes1.length, bytes2.length);
+    int    maxSize = Math.max(bytes1.length, bytes2.length);
+    byte[] result  = new byte[maxSize];
     for (int i = 0; i < minSize; i++) {
       result[i] = (byte) (bytes1[i] ^ bytes2[i]);
     }
@@ -39,6 +39,10 @@ public class ByteUtil {
       byte[] ret = new byte[length];
       System.arraycopy(source, 0, ret, 0, length);
       return ret;
+    }
+
+    if (sourceLength == 0) {
+      return new byte[length];
     }
 
     {

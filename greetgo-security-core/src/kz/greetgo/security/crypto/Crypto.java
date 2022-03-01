@@ -23,12 +23,34 @@ public interface Crypto {
   byte[] encrypt(byte[] bytes);
 
   /**
+   * Encrypt data using public key
+   * <p>
+   * Max number of bytes is limited by {@link CryptoSource#getBlockSize()}
+   *
+   * @param bytes data to encrypt
+   * @return encrypted data
+   */
+  byte[] encryptBlock(byte[] bytes);
+
+  /**
    * Decrypt encrypted data using private key
+   * <p>
+   * Encryption must be made by method {@link #encrypt(byte[])}
    *
    * @param encryptedBytes encrypted data
    * @return decrypted (original) data
    */
   byte[] decrypt(byte[] encryptedBytes);
+
+  /**
+   * Decrypt encrypted data using private key
+   * <p>
+   * Encryption must be made by method {@link #encryptBlock(byte[])}
+   *
+   * @param encryptedBytes encrypted data
+   * @return decrypted (original) data
+   */
+  byte[] decryptBlock(byte[] encryptedBytes);
 
   /**
    * Sign data

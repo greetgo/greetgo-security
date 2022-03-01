@@ -30,9 +30,21 @@ public class CryptoBridge implements Crypto {
       cipher.init(Cipher.ENCRYPT_MODE, cryptoSource.getPublicKey());
       return cipher.doFinal(bytes);
     } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-      if (trace != null) trace.trace("CP 24WwTRF26U", e);
+      if (trace != null) {
+        trace.trace("CP 24WwTRF26U", e);
+      }
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public byte[] encryptBlock(byte[] bytes) {
+    return encryptBlock(bytes, cryptoSource);
+  }
+
+  @Override
+  public byte[] decryptBlock(byte[] encryptedBytes) {
+    return decryptBlock(encryptedBytes, cryptoSource);
   }
 
   private static byte[] decryptBlock(byte[] encryptedBytes, CryptoSource cryptoSource) {
@@ -43,10 +55,14 @@ public class CryptoBridge implements Crypto {
       return cipher.doFinal(encryptedBytes);
 
     } catch (BadPaddingException | IllegalBlockSizeException e) {
-      if (trace != null) trace.trace("CP A5dm6oys4i", e);
+      if (trace != null) {
+        trace.trace("CP A5dm6oys4i", e);
+      }
       return null;
     } catch (InvalidKeyException e) {
-      if (trace != null) trace.trace("CP txLAlobOu7", e);
+      if (trace != null) {
+        trace.trace("CP 5QATeDVTnj", e);
+      }
       throw new RuntimeException(e);
     }
   }
@@ -58,7 +74,9 @@ public class CryptoBridge implements Crypto {
   }
 
   private static EncryptedData createEncryptedData(byte[] bytes, CryptoSource cryptoSource) {
-    if (bytes == null) return null;
+    if (bytes == null) {
+      return null;
+    }
     final EncryptedData ret;
     if (cryptoSource.getBlockSize() < bytes.length) {
       ret = new ManyBlocks();
@@ -103,7 +121,9 @@ public class CryptoBridge implements Crypto {
     @Override
     public byte[] decryptAndGet(CryptoSource cryptoSource) {
       final byte[] symmetricKey = decryptBlock(encryptedSymmetricKey, cryptoSource);
-      if (symmetricKey == null) return null;
+      if (symmetricKey == null) {
+        return null;
+      }
       return readFromBlockList(blockList, symmetricKey);
     }
   }
@@ -134,14 +154,16 @@ public class CryptoBridge implements Crypto {
   static void writeToBlockList(List<byte[]> blockList, byte[] symmetricKey, byte[] bytes) {
     int performedCount = 0;
 
-    final int bytesLength = bytes.length;
+    final int bytesLength        = bytes.length;
     final int symmetricKeyLength = symmetricKey.length;
 
     while (performedCount < bytesLength) {
       int performBorder = performedCount + symmetricKeyLength;
-      if (performBorder > bytesLength) performBorder = bytesLength;
-      int currentBlockSize = performBorder - performedCount;
-      byte[] block = new byte[currentBlockSize];
+      if (performBorder > bytesLength) {
+        performBorder = bytesLength;
+      }
+      int    currentBlockSize = performBorder - performedCount;
+      byte[] block            = new byte[currentBlockSize];
       System.arraycopy(bytes, performedCount, block, 0, currentBlockSize);
       for (int i = 0; i < currentBlockSize; i++) {
         block[i] ^= symmetricKey[i];
@@ -154,14 +176,18 @@ public class CryptoBridge implements Crypto {
   @Override
   public byte[] encrypt(byte[] bytes) {
     EncryptedData encryptedData = createEncryptedData(bytes, cryptoSource);
-    if (encryptedData == null) return null;
+    if (encryptedData == null) {
+      return null;
+    }
 
     ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 
     try (ObjectOutputStream oos = new ObjectOutputStream(bOut)) {
       oos.writeObject(encryptedData);
     } catch (IOException e) {
-      if (trace != null) trace.trace("CP tToHF5T7vr", e);
+      if (trace != null) {
+        trace.trace("CP tToHF5T7vr", e);
+      }
       throw new RuntimeException(e);
     }
 
@@ -170,7 +196,9 @@ public class CryptoBridge implements Crypto {
 
   @Override
   public byte[] decrypt(byte[] encryptedBytes) {
-    if (encryptedBytes == null) return null;
+    if (encryptedBytes == null) {
+      return null;
+    }
 
     ByteArrayInputStream bIn = new ByteArrayInputStream(encryptedBytes);
     try (ObjectInputStream ois = new ObjectInputStream(bIn)) {
@@ -180,7 +208,9 @@ public class CryptoBridge implements Crypto {
       return encryptedData.decryptAndGet(cryptoSource);
 
     } catch (IOException | ClassNotFoundException | ClassCastException e) {
-      if (trace != null) trace.trace("CP 6c37UGb42g", e);
+      if (trace != null) {
+        trace.trace("CP 6c37UGb42g", e);
+      }
       return null;
     }
 
@@ -188,7 +218,9 @@ public class CryptoBridge implements Crypto {
 
   @Override
   public byte[] sign(byte[] bytes) {
-    if (bytes == null) return null;
+    if (bytes == null) {
+      return null;
+    }
     try {
 
       final byte[] hash1 = cryptoSource.getMessageDigest().digest(bytes);
@@ -199,7 +231,9 @@ public class CryptoBridge implements Crypto {
       return cipher.doFinal(hash1);
 
     } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-      if (trace != null) trace.trace("CP 7xTj50ch06", e);
+      if (trace != null) {
+        trace.trace("CP 7xTj50ch06", e);
+      }
       throw new RuntimeException(e);
     }
   }
@@ -207,7 +241,9 @@ public class CryptoBridge implements Crypto {
   @Override
   public boolean verifySignature(byte[] bytes, byte[] signature) {
     if (signature == null || bytes == null) {
-      if (trace != null) trace.trace("CP I1iC54087r");
+      if (trace != null) {
+        trace.trace("CP I1iC54087r");
+      }
       return false;
     }
     try {
@@ -220,27 +256,37 @@ public class CryptoBridge implements Crypto {
       final byte[] hash2 = cipher.doFinal(signature);
 
       if (hash1.length != hash2.length) {
-        if (trace != null) trace.trace("CP DR5Xd1NH19");
+        if (trace != null) {
+          trace.trace("CP DR5Xd1NH19");
+        }
         return false;
       }
 
       for (int i = 0, n = hash1.length; i < n; i++) {
         if (hash1[i] != hash2[i]) {
-          if (trace != null) trace.trace("CP 7tJoTkWm0H");
+          if (trace != null) {
+            trace.trace("CP 7tJoTkWm0H");
+          }
           return false;
         }
       }
 
-      if (trace != null) trace.trace("CP m9t3OpQL0O");
+      if (trace != null) {
+        trace.trace("CP m9t3OpQL0O");
+      }
       return true;
 
     } catch (BadPaddingException | IllegalBlockSizeException | ArrayIndexOutOfBoundsException e) {
 
-      if (trace != null) trace.trace("CP AJ1k7Gy2Hk", e);
+      if (trace != null) {
+        trace.trace("CP AJ1k7Gy2Hk", e);
+      }
       return false;
 
     } catch (InvalidKeyException e) {
-      if (trace != null) trace.trace("CP 08saDm2rsb", e);
+      if (trace != null) {
+        trace.trace("CP 08saDm2rsb", e);
+      }
       throw new RuntimeException(e);
     }
   }
