@@ -1,10 +1,10 @@
 package kz.greetgo.security.session;
 
 import kz.greetgo.security.crypto.Crypto;
-import org.bson.internal.Base64;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 
 import static kz.greetgo.security.util.ByteUtil.copyToLength;
 import static kz.greetgo.security.util.ByteUtil.xorBytes;
@@ -39,7 +39,7 @@ public class SaltGeneratorCryptoBridge implements SaltGenerator {
     System.arraycopy(rndBytes, 0, resultBytes, 0, rndLength);
     System.arraycopy(encryptedSourceBytes, 0, resultBytes, rndLength, encryptedSourceBytes.length);
 
-    String salt = Base64.encode(resultBytes);
+    String salt = Base64.getEncoder().encodeToString(resultBytes);
     return salt.replace('/', '$').replace('+', '~').replace('=', '@');
   }
 
@@ -54,7 +54,7 @@ public class SaltGeneratorCryptoBridge implements SaltGenerator {
 
     byte[] resultBytes;
     try {
-      resultBytes = Base64.decode(saltBase64);
+      resultBytes = Base64.getDecoder().decode(saltBase64);
     } catch (Exception e) {
       return false;
     }
