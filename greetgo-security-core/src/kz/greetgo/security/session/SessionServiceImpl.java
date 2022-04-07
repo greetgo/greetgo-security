@@ -60,7 +60,7 @@ class SessionServiceImpl implements SessionService {
         return Optional.empty();
       }
 
-      if (isInvalidSession(sessionId, sessionRow.sessionData, sessionRow.token)) {
+      if (isInvalidSession(sessionId, sessionRow.sessionData, sessionRow.token, sessionRow)) {
         removeSession(sessionId);
         return Optional.empty();
       }
@@ -71,19 +71,19 @@ class SessionServiceImpl implements SessionService {
     }
   }
 
-  private boolean isInvalidSession(String sessionId, Object sessionData, String token) {
-    return !isValidSession(sessionId, sessionData, token);
+  private boolean isInvalidSession(String sessionId, Object sessionData, String token, SessionParams sessionParams) {
+    return !isValidSession(sessionId, sessionData, token, sessionParams);
   }
 
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  private boolean isValidSession(String sessionId, Object sessionData, String token) {
+  private boolean isValidSession(String sessionId, Object sessionData, String token, SessionParams sessionParams) {
     SessionValidator<Object> sessionValidator = builder.sessionValidator;
     if (sessionValidator == null) {
       return true;
     }
 
     try {
-      sessionValidator.validate(sessionId, sessionData, token);
+      sessionValidator.validate(sessionId, sessionData, token, sessionParams);
       return true;
     } catch (Exception e) {
       return false;

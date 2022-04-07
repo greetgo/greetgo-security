@@ -24,9 +24,9 @@ dependencies {
   testCompile 'org.postgresql:postgresql:42.3.3'
 
   if (ggRepo?.trim()) {
-    //noinspection SpellCheckingInspection
-    testCompile "greetgo.3rd-party:oracle-ojdbc6_g:11.2.0.3"
-    testCompile "greetgo.3rd-party:oracle-ucp:11.2.0.3"
+//    //noinspection SpellCheckingInspection
+//    testCompile "greetgo.3rd-party:oracle-ojdbc6_g:11.2.0.3"
+//    testCompile "greetgo.3rd-party:oracle-ucp:11.2.0.3"
   } else {
     testCompile fileTree(dir: 'lib_oracle_driver', include: ['*.jar'])
   }

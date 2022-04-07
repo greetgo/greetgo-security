@@ -2,7 +2,7 @@ package kz.greetgo.security.session;
 
 import java.util.Date;
 
-public class SessionRow {
+public class SessionRow implements SessionParams {
   public final String token;
   public final Object sessionData;
   public final Date   insertedAt;
@@ -15,4 +15,13 @@ public class SessionRow {
     this.lastTouchedAt = lastTouchedAt;
   }
 
+  @Override
+  public Date insertedAt() {
+    return insertedAt;
+  }
+
+  @Override
+  public Date lastTouchedAt() {
+    return lastTouchedAt;
+  }
 }

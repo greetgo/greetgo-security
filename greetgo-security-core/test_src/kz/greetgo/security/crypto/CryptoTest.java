@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
+import static kz.greetgo.security.factory.OracleFactory.hasOracleDriver;
 import static kz.greetgo.security.util.TestMongoUtil.connectGetCollection;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,13 +40,13 @@ public class CryptoTest {
       final String keysDir = "build/test_data/CryptoTest/keys/";
 
       File privateKeyFile = new File(keysDir + suffix + ".private.key");
-      File publicKeyFile = new File(keysDir + suffix + ".public.key");
+      File publicKeyFile  = new File(keysDir + suffix + ".public.key");
 
       return newCryptoBuilder()
-          .setKeySize(keySize)
-          .inFiles(privateKeyFile, publicKeyFile)
-          .setConfig(new CryptoSourceConfigDefault())
-          .build();
+        .setKeySize(keySize)
+        .inFiles(privateKeyFile, publicKeyFile)
+        .setConfig(new CryptoSourceConfigDefault())
+        .build();
     };
   }
 
@@ -64,7 +65,7 @@ public class CryptoTest {
 
       @Override
       public Crypto create(String suffix) {
-        if (dbType == DbType.Oracle && !OracleFactory.hasOracleDriver()) {
+        if (dbType == DbType.Oracle && !hasOracleDriver()) {
           throw new SkipException("No Oracle JDBC Driver");
         }
 
@@ -72,16 +73,16 @@ public class CryptoTest {
         Jdbc jdbc = jdbcFactory.create();
 
         return newCryptoBuilder()
-            .setKeySize(keySize)
-            .inDb(dbType, jdbc)
-            .setConfig(new CryptoSourceConfigDefault())
-            .setTableName("crypto_keys_" + suffix)
-            .setIdFieldLength(70)
-            .setIdFieldName("key_id")
-            .setValueFieldName("key_content")
-            .setPrivateKeyIdValue("private_key_id")
-            .setPublicKeyIdValue("public_key_id")
-            .build();
+          .setKeySize(keySize)
+          .inDb(dbType, jdbc)
+          .setConfig(new CryptoSourceConfigDefault())
+          .setTableName("crypto_keys_" + suffix)
+          .setIdFieldLength(70)
+          .setIdFieldName("key_id")
+          .setValueFieldName("key_content")
+          .setPrivateKeyIdValue("private_key_id")
+          .setPublicKeyIdValue("public_key_id")
+          .build();
       }
     };
   }
@@ -95,7 +96,7 @@ public class CryptoTest {
 
       @Override
       public Crypto create(String suffix) {
-        if (dbType == DbType.Oracle && !OracleFactory.hasOracleDriver()) {
+        if (dbType == DbType.Oracle && !hasOracleDriver()) {
           throw new SkipException("No Oracle JDBC Driver");
         }
 
@@ -107,13 +108,13 @@ public class CryptoTest {
         }
 
         return newCryptoBuilder()
-            .setKeySize(keySize)
-            .inDb(dbType, jdbc)
-            .setConfig(new CryptoSourceConfigDefault())
-            .setTableName("crypto_keys_" + suffix)
-            .setValueFieldNameForPrivateKey("c_private")
-            .setValueFieldNameForPublicKey("c_public")
-            .build();
+          .setKeySize(keySize)
+          .inDb(dbType, jdbc)
+          .setConfig(new CryptoSourceConfigDefault())
+          .setTableName("crypto_keys_" + suffix)
+          .setValueFieldNameForPrivateKey("c_private")
+          .setValueFieldNameForPublicKey("c_public")
+          .build();
       }
     };
   }
@@ -140,12 +141,12 @@ public class CryptoTest {
         Jdbc jdbc = jdbcFactory.create();
 
         return CryptoBuilder.newBuilder()
-            .setKeySize(keySize)
-            .inDb(dbType, jdbc)
-            .setConfig(new CryptoSourceConfigDefault())
-            .setTableNameForPrivateKey("crypto_private_" + suffix)
-            .setTableNameForPublicKey("crypto_public_" + suffix)
-            .build();
+                            .setKeySize(keySize)
+                            .inDb(dbType, jdbc)
+                            .setConfig(new CryptoSourceConfigDefault())
+                            .setTableNameForPrivateKey("crypto_private_" + suffix)
+                            .setTableNameForPublicKey("crypto_public_" + suffix)
+                            .build();
       }
     };
   }
@@ -168,16 +169,16 @@ public class CryptoTest {
         MongoCollection<Document> collection = connectGetCollection("crypto_keys_" + RND.intStr(10));
 
         return CryptoBuilder
-            .newBuilder()
-            .setKeySize(keySize)
-            .setConfig(new CryptoSourceConfigDefault())
-            .inMongo(collection)
-            .setKeysFieldName("key_content")
-            .setIdFieldName("key_id")
-            .setPrivateId("test_private_key")
-            .setPublicId("test_public_key")
-            .build()
-            ;
+          .newBuilder()
+          .setKeySize(keySize)
+          .setConfig(new CryptoSourceConfigDefault())
+          .inMongo(collection)
+          .setKeysFieldName("key_content")
+          .setIdFieldName("key_id")
+          .setPrivateId("test_private_key")
+          .setPublicId("test_public_key")
+          .build()
+          ;
       }
     };
   }
@@ -200,17 +201,17 @@ public class CryptoTest {
         MongoCollection<Document> collection = connectGetCollection("crypto_keys_same_doc_" + RND.intStr(10));
 
         return CryptoBuilder
-            .newBuilder()
-            .setKeySize(keySize)
-            .setConfig(new CryptoSourceConfigDefault())
-            .inMongo(collection)
-            .setPublicKeyFieldName("public_key_content")
-            .setPrivateKeyFieldName("private_key_content")
-            .setIdFieldName("key_id")
-            .setPrivateId("cool_key")
-            .setPublicId("cool_key")
-            .build()
-            ;
+          .newBuilder()
+          .setKeySize(keySize)
+          .setConfig(new CryptoSourceConfigDefault())
+          .inMongo(collection)
+          .setPublicKeyFieldName("public_key_content")
+          .setPrivateKeyFieldName("private_key_content")
+          .setIdFieldName("key_id")
+          .setPrivateId("cool_key")
+          .setPublicId("cool_key")
+          .build()
+          ;
       }
     };
   }
@@ -233,19 +234,19 @@ public class CryptoTest {
         String rnd = RND.intStr(10);
 
         MongoCollection<Document> privateKey = connectGetCollection("private_crypto_keys_" + rnd);
-        MongoCollection<Document> publicKey = connectGetCollection("public_crypto_keys_" + rnd);
+        MongoCollection<Document> publicKey  = connectGetCollection("public_crypto_keys_" + rnd);
 
         return CryptoBuilder
-            .newBuilder()
-            .setKeySize(keySize)
-            .setConfig(new CryptoSourceConfigDefault())
-            .inMongo(privateKey, publicKey)
-            .setKeysFieldName("key_content")
-            .setIdFieldName("key_id")
-            .setPrivateId("test_key")
-            .setPublicId("test_key")
-            .build()
-            ;
+          .newBuilder()
+          .setKeySize(keySize)
+          .setConfig(new CryptoSourceConfigDefault())
+          .inMongo(privateKey, publicKey)
+          .setKeysFieldName("key_content")
+          .setIdFieldName("key_id")
+          .setPrivateId("test_key")
+          .setPublicId("test_key")
+          .build()
+          ;
       }
     };
   }
@@ -259,15 +260,21 @@ public class CryptoTest {
     list.add(new Object[]{cryptoSourceInFiles(1024 * 2), 20});
 
     list.add(new Object[]{onDbInSameTable(DbType.Postgres, 1024), 20});
-    list.add(new Object[]{onDbInSameTable(DbType.Oracle, 1024 * 2), 20});
+    if (hasOracleDriver()) {
+      list.add(new Object[]{onDbInSameTable(DbType.Oracle, 1024 * 2), 20});
+    }
 
     list.add(new Object[]{onDbInSameTableDiffContent(DbType.Postgres, 1024, true), 20});
     list.add(new Object[]{onDbInSameTableDiffContent(DbType.Postgres, 1024, false), 20});
-    list.add(new Object[]{onDbInSameTableDiffContent(DbType.Oracle, 1024 * 2, true), 20});
-    list.add(new Object[]{onDbInSameTableDiffContent(DbType.Oracle, 1024 * 2, false), 20});
+    if (hasOracleDriver()) {
+      list.add(new Object[]{onDbInSameTableDiffContent(DbType.Oracle, 1024 * 2, true), 20});
+      list.add(new Object[]{onDbInSameTableDiffContent(DbType.Oracle, 1024 * 2, false), 20});
+    }
 
     list.add(new Object[]{onDbInDifferentTables(DbType.Postgres, 1024), 20});
-    list.add(new Object[]{onDbInDifferentTables(DbType.Oracle, 1024 * 2), 20});
+    if (hasOracleDriver()) {
+      list.add(new Object[]{onDbInDifferentTables(DbType.Oracle, 1024 * 2), 20});
+    }
 
     list.add(new Object[]{onMongoInSameCollection(1024), 20});
     list.add(new Object[]{onMongoInSameCollection(1024 * 2), 20});
@@ -368,10 +375,10 @@ public class CryptoTest {
     Jdbc jdbc = jdbcFactory.create();
 
     newCryptoBuilder()
-        .inDb(DbType.Postgres, jdbc)
-        .setPrivateIdFieldLength(70)
-        .setPublicIdFieldLength(80)
-        .build();
+      .inDb(DbType.Postgres, jdbc)
+      .setPrivateIdFieldLength(70)
+      .setPublicIdFieldLength(80)
+      .build();
   }
 
   @Test(expectedExceptions = UnsupportedDb.class)
@@ -380,8 +387,8 @@ public class CryptoTest {
     Jdbc jdbc = jdbcFactory.create();
 
     newCryptoBuilder()
-        .inDb(DbType.HSQLDB, jdbc)
-        .build();
+      .inDb(DbType.HSQLDB, jdbc)
+      .build();
   }
 
   @Test(dataProvider = "mainDataProvider")
@@ -427,7 +434,7 @@ public class CryptoTest {
 
     SecureRandom rnd = crypto.rnd();
 
-    long[] longs = rnd.longs().limit((long)arraySize * 100).toArray();
+    long[] longs = rnd.longs().limit((long) arraySize * 100).toArray();
     Arrays.sort(longs);
 
     for (int i = 1; i < longs.length; i++) {

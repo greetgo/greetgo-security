@@ -49,7 +49,7 @@ public class SessionServiceTest {
                                                .setTokenLength(17)
                                                .setStorage(sessionStorage)
                                                .setSaltGenerator(saltGenerator)
-                                               .sessionValidator((sessionId, sessionData, token) -> {})
+                                               .sessionValidator((sessionId, sessionData, token, sp) -> {})
                                                .sessionLog(Throwable::printStackTrace)
                                                .setDelayTouchSyncMs(() -> 4700)
                                                .setSessionCache(new NoSessionCache())

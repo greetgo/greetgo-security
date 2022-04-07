@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static kz.greetgo.security.factory.OracleFactory.hasOracleDriver;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JdbcContentAccessTest {
@@ -35,12 +36,16 @@ public class JdbcContentAccessTest {
       "  content blob not null" +
       ")";
 
-    return new Object[][]{
-      {DbType.Postgres, new DbDialectPostgres(), postgresCreateTable},
-      {DbType.Postgres, new DbDialectPostgres(), postgresCreateTable},
-      {DbType.Oracle, new DbDialectOracle(), oracleCreateTable},
-      {DbType.Oracle, new DbDialectOracle(), oracleCreateTable},
-    };
+    List<Object[]> rete = new ArrayList<>();
+    rete.add(new Object[]{DbType.Postgres, new DbDialectPostgres(), postgresCreateTable});
+    rete.add(new Object[]{DbType.Postgres, new DbDialectPostgres(), postgresCreateTable});
+
+    if (hasOracleDriver()) {
+      rete.add(new Object[]{DbType.Oracle, new DbDialectOracle(), oracleCreateTable});
+      rete.add(new Object[]{DbType.Oracle, new DbDialectOracle(), oracleCreateTable});
+    }
+
+    return rete.toArray(new Object[rete.size()][]);
   }
 
   @Test(dataProvider = "dbTypeDataProvider")
