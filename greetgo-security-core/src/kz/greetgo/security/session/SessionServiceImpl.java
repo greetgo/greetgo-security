@@ -86,6 +86,7 @@ class SessionServiceImpl implements SessionService {
       sessionValidator.validate(sessionId, sessionData, token, sessionParams);
       return true;
     } catch (Exception e) {
+      builder.sessionLog.sessionValidateError(e);
       return false;
     }
   }
